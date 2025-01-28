@@ -1,10 +1,13 @@
-#First Vis for Founderevents
+# QDR RNAseq Solanum species
+# Visualization of GenEra data
+# Severin Einspanier
+# 2024_09_08
 
 rm(list=ls())
 library(tidyverse)
 
 # Verzeichnis, in dem sich die Dateien befinden
-directory <- "C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/TAI/data/GenEra/"
+directory <- "GenEra/"
 
 # Liste aller Dateien im Verzeichnis (z.B. CSV-Dateien)
 file_list <- list.files(path = directory, pattern = "*_founder_summary.tsv", full.names = TRUE)
@@ -37,7 +40,7 @@ head(combined_data)
 
 colnames(combined_data)[1]="number_of_genes_families"
 
-ncbi_key <- read.csv("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/TAI/data/GenEra/ncbi_taxid.csv")
+ncbi_key <- read.csv("ncbi_taxid.csv")
 
 combined_data_edit <- combined_data %>% 
   left_join(ncbi_key, by="taxid") %>% 
@@ -84,11 +87,11 @@ cols = pal_simpsons(palette = c("springfield"), alpha = .9)(5)
           legend.title = element_text(size=17, face="bold"),
           legend.text = element_text(size=14, face="italic")))
 
-ggsave("C:/Users/suaph281//Nextcloud/ResiDEvo/sequencing/figures/fig_1/2024_09_08_gene_founders.png", 
+ggsave("2024_09_08_gene_founders.png", 
        p1, dpi=900, width=8, height=7)
 
 
-svg(paste0("C:/Users/suaph281//Nextcloud/ResiDEvo/sequencing/figures/fig_1/2024_09_08_gene_founders.svg"), 
+svg(paste0("2024_09_08_gene_founders.svg"), 
     width=8, height=7, bg="transparent")
 
 (p1 <- combined_data_edit %>% 
@@ -114,7 +117,7 @@ svg(paste0("C:/Users/suaph281//Nextcloud/ResiDEvo/sequencing/figures/fig_1/2024_
 dev.off()
 
 
-# Try to merge with gene age 
+# merge with gene age 
 
 file_list <- list.files(path = directory, pattern = "*gene_age_summary.tsv", full.names = TRUE)
 
@@ -146,8 +149,6 @@ head(combined_data_age)
 
 colnames(combined_data_age)[1]="number_of_genes"
 
-#ncbi_key <- read.csv("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/TAI/data/GenEra/ncbi_taxid.csv")
-
 combined_data_edit_age <- combined_data_age %>% 
   left_join(ncbi_key, by="taxid") %>% 
   select(!X)
@@ -162,7 +163,7 @@ fulldata<- combined_data_edit %>%
                values_to="number_of_genes") 
 
 
-svg(paste0("C:/Users/suaph281//Nextcloud/ResiDEvo/sequencing/figures/fig_1/", Sys.Date(),"_AGE_all.svg"), 
+svg(paste0("figures/fig_1/", Sys.Date(),"_AGE_all.svg"), 
     width=12, height=10, bg="transparent")
 
 (p3 <- fulldata %>% 
@@ -192,5 +193,5 @@ svg(paste0("C:/Users/suaph281//Nextcloud/ResiDEvo/sequencing/figures/fig_1/", Sy
   )
 dev.off()
 
-ggsave("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_1/2024_09_19_AGE_summary.png", 
+ggsave("fig_1/2024_09_19_AGE_summary.png", 
        p3, dpi=900, width=12, height=9)

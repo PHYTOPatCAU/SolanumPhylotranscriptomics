@@ -1,10 +1,14 @@
+# QDR RNAseq Solanum species
 # plot signature of the resistance-modules 
+# Severin Einspanier
+
 rm(list=ls())
 pacman::p_load(myTAI, tidyverse)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
+# only focus on main module
 resistance_module_spen <- "red"
-spen_resistance_module <-  read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/spen/TOM_INFL_filtered_node_2024-12-17_filtered.tsv") %>% 
+spen_resistance_module <-  read.delim("TOM_INFL_filtered_node_2024-12-17_filtered.tsv") %>% 
   filter(nodeAttr.nodesPresent... == resistance_module_spen) %>%
   mutate(nodeName=tolower(nodeName)) %>% 
   select(nodeName)%>%
@@ -29,7 +33,7 @@ PlotSignature(ExpressionSet = spen_tai_red,
 # repeat for S lyco as well
 
 resistance_module_slyco <- "turquoise"
-slyco_resistance_module <-  read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/slyco/TOM_INFL_filtered_node_2024-12-13.tsv") %>% 
+slyco_resistance_module <-  read.delim("TOM_INFL_filtered_node_2024-12-13.tsv") %>% 
   filter(nodeAttr.nodesPresent... == resistance_module_slyco) %>%
   mutate(nodeName=tolower(nodeName)) %>% 
   select(nodeName)%>%

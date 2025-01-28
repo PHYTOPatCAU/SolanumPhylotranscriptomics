@@ -1,9 +1,14 @@
+# QDR RNAseq Solanum species
+# Extract dnds of interesting resistance modules
+# Severin Einspanier
+
+
 ###############################################################
 # Setup
 ###############################################################
 pacman::p_load(myTAI, tidyverse)
 
- setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+ setwd("")
 # (Uncomment/modify if you need a working directory set)
 
 ###############################################################
@@ -42,7 +47,7 @@ spen_genid2goid <- read.csv("OGs/data/genid2goid_spen.csv", row.names = 1) %>%
   select(OG, gene) %>% 
   distinct()
 
-spen_nodes <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/spen/TOM_INFL_filtered_node_2024-12-17_filtered.tsv") %>% 
+spen_nodes <- read.delim("TOM_INFL_filtered_node_2024-12-17_filtered.tsv") %>% 
   left_join(spen_genid2goid, by = c("nodeName" = "gene")) %>% 
   distinct()
 
@@ -61,7 +66,7 @@ slyco_genid2goid <- read.csv("OGs/data/genid2goid_slyco.csv", row.names = 1) %>%
   select(OG, gene) %>% 
   distinct()
 
-slyco_nodes <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/slyco/TOM_INFL_filtered_node_2024-12-19_filtered.tsv") %>% 
+slyco_nodes <- read.delim("TOM_INFL_filtered_node_2024-12-19_filtered.tsv") %>% 
   left_join(slyco_genid2goid, by = c("nodeName" = "gene")) %>% 
   distinct()
 
@@ -202,7 +207,7 @@ p_tot <- ggpubr::ggarrange(
 )
 
 ggsave(
-  filename = "C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_7/2025_01_02_dnds_resistance_modules.png",
+  filename = "2025_01_02_dnds_resistance_modules.png",
   plot     = p_tot,
   width    = 10,
   height   = 5,

@@ -1,10 +1,14 @@
-# Further analysis with OG network
+# QDR RNAseq Solanum species
+# Construct final network for OGs
+# also filter network for Cytoscape
+# Define Hub genes
+# Severin Einspanier
 
 rm(list=ls())
 library(tidyverse)
 library(WGCNA)
+allowWGCNAThreads(n=30)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
 options(stringsAsFactors = FALSE)
 datExpr <- read.csv("OGs/data/orthogroup_expression_data_rlog_all_species.csv")%>%
   column_to_rownames("X")
@@ -28,7 +32,7 @@ result <- blockwiseModules(datExpr, checkMissingData = FALSE, replaceMissingAdja
                                detectCutHeight = 0.95,
                                numericLabels = TRUE,
                                saveTOMs = F, 
-                               saveTOMFileBase = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/TOM_sft_9_ds0_cm3",
+                               saveTOMFileBase = "TOM_sft_9_ds0_cm3",
                                verbose = 3)
 
 colors=labels2colors(result$colors)
@@ -48,7 +52,7 @@ gene_module_df <- data.frame(
 )
 head(gene_module_df)
 
-write.table(gene_module_df,"/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/TOM/TOM_sft_9_ds0_mch35_moduleColors_genid.txt")
+write.table(gene_module_df,"OG/TOM/TOM_sft_9_ds0_mch35_moduleColors_genid.txt")
 
 
 # Plot Dendrogram 
@@ -70,82 +74,14 @@ plotDendroAndColors(result$dendrograms[[1]],
 dev.off()
 
 moduleColors=labels2colors(result$colors)
-write.table(moduleColors, "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/TOM_sft_9_ds0_mch35_moduleColors.txt", 
+write.table(moduleColors, "OG/TOM_sft_9_ds0_mch35_moduleColors.txt", 
     col.names = FALSE, row.names = TRUE, quote = FALSE, sep = "\t")
 
-# Correlations
 
-ranked_genotypes <- datTraits_cor %>%
-  group_by(accession) %>%
-  summarise(mean_LDT = mean(lsmean.LDT.)) %>%
-  arrange((mean_LDT)) %>%
-  mutate(rank = row_number())
-
-datTraits_cor_rank <- datTraits_cor %>%
-  left_join(ranked_genotypes, by = "accession") %>%
-  rename(species = species_short) %>%
-  select(infection, species, rank)
-
-nGenes = ncol(datExpr);
-nSamples = nrow(datExpr);
-# Recalculate MEs with color labels
-MEs0 = moduleEigengenes(datExpr, moduleColors)$eigengenes
-MEs = orderMEs(MEs0)
-moduleTraitCor = WGCNA::cor(MEs, datTraits_cor_rank, use = "p");
-moduleTraitPvalue = corPvalueStudent(moduleTraitCor, nSamples);
-
-# Plot the heatmap
-
-textMatrix = paste(signif(moduleTraitCor, 2), "\n(",signif(moduleTraitPvalue, 1), ")", sep = "");
-dim(textMatrix) = dim(moduleTraitCor)
-
-
-
-png(file = "WGCNA/documentation/pics/OG/finalNetwork_sft9_ds0_mch035_mod_cor.png", 
-  width = 6000, height = 8000, 
-    res=600);
-
-par(mar = c(8,8, 3, 3));
-# Display the correlation values within a heatmap plot
-labeledHeatmap(Matrix = moduleTraitCor,
-               xLabels = names(datTraits_cor_rank),
-               yLabels = names(MEs),
-               ySymbols = names(MEs),
-               colorLabels = TRUE,
-               colors = blueWhiteRed(50),
-               textMatrix = textMatrix,
-               setStdMargins = FALSE,
-               cex.text = 0.8,
-               cex.lab=1,
-               zlim = c(-1,1),
-               main = paste("Module-trait relationships \nSingle-copy Orthogroups"))
-
-dev.off()
-
-
-load("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/TOM_sft_9_ds0_cm3-block.1.RData")
-moduleColors = read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/TOM_sft_9_ds0_mch35_moduleColors.txt", header = FALSE)
+load("OG/TOM_sft_9_ds0_cm3-block.1.RData")
+moduleColors = read.table("OG/TOM_sft_9_ds0_mch35_moduleColors.txt", header = FALSE)
 moduleColors  = as.character(moduleColors$V2)
 head(moduleColors)
-
-#(forgot to safe tom, testing now new way to calculate)
-#TOM = TOMsimilarityFromExpr(
-#  datExpr, 
-#  weights = NULL,
-#  corType = "pearson", 
-#  networkType = "signed hybrid", 
-#  power = 10, 
-#  TOMType = "signed", 
-#  TOMDenom = "min",
-#  maxPOutliers = 1,
-#  quickCor = 0,
-#  replaceMissingAdjacencies = TRUE,
-#  suppressTOMForZeroAdjacencies = FALSE,
-#  suppressNegativeTOM = FALSE,
-#  useInternalMatrixAlgebra = FALSE,
-#  nThreads = 12,
-#  verbose = 1, 
-#  indent = 0)
 
 # Export to Cytoscape
 
@@ -192,8 +128,8 @@ top_1M_edges <- out_network$edgeData %>%
 
 out_network_threshold <- exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE/TOM_1k_edge_", Sys.Date(), ".tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE/TOM_1k_node_", Sys.Date(), ".tsv"),
+   edgeFile = paste0("OG/CYTOSCAPE/TOM_1k_edge_", Sys.Date(), ".tsv"),
+   nodeFile = paste0("OG/CYTOSCAPE/TOM_1k_node_", Sys.Date(), ".tsv"),
    weighted = TRUE,
    threshold = top_1k_edges$weight,
    nodeNames = names(datExpr),
@@ -203,8 +139,8 @@ out_network_threshold <- exportNetworkToCytoscape(
 
 out_network_threshold_10k <- exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE/TOM_10k_edge_", Sys.Date(), ".tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE//TOM_10k_node_", Sys.Date(), ".tsv"),
+   edgeFile = paste0("OG/CYTOSCAPE/TOM_10k_edge_", Sys.Date(), ".tsv"),
+   nodeFile = paste0("OG/CYTOSCAPE//TOM_10k_node_", Sys.Date(), ".tsv"),
    weighted = TRUE,
    threshold = top_10k_edges$weight,
    nodeNames = names(datExpr),
@@ -214,8 +150,8 @@ out_network_threshold_10k <- exportNetworkToCytoscape(
 
 out_network_threshold_100k <- exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE//TOM_100k_edge_", Sys.Date(), ".tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE//TOM_100k_node_", Sys.Date(), ".tsv"),
+   edgeFile = paste0("OG/CYTOSCAPE//TOM_100k_edge_", Sys.Date(), ".tsv"),
+   nodeFile = paste0("OG/CYTOSCAPE//TOM_100k_node_", Sys.Date(), ".tsv"),
    weighted = TRUE,
    threshold = top_100k_edges$weight,
    nodeNames = names(datExpr),
@@ -225,8 +161,8 @@ out_network_threshold_100k <- exportNetworkToCytoscape(
 
 out_network_threshold_1M <- exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE//TOM_1M_edge_", Sys.Date(), ".tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE/TOM_1M_node_", Sys.Date(), ".tsv"),
+   edgeFile = paste0("OG/CYTOSCAPE//TOM_1M_edge_", Sys.Date(), ".tsv"),
+   nodeFile = paste0("OG/CYTOSCAPE/TOM_1M_node_", Sys.Date(), ".tsv"),
    weighted = TRUE,
    threshold = top_1M_edges$weight,
    nodeNames = names(datExpr),
@@ -236,8 +172,8 @@ out_network_threshold_1M <- exportNetworkToCytoscape(
 
 exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE//TOM_full_edge_", Sys.Date(), ".tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE/TOM_full_node_", Sys.Date(), ".tsv"),
+   edgeFile = paste0("OG/CYTOSCAPE//TOM_full_edge_", Sys.Date(), ".tsv"),
+   nodeFile = paste0("OG/CYTOSCAPE/TOM_full_node_", Sys.Date(), ".tsv"),
    weighted = TRUE,
    nodeNames = names(datExpr),
    threshold =0,
@@ -248,9 +184,9 @@ exportNetworkToCytoscape(
 
 # Get Hub genes 
 
-net_edges <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE//TOM_full_edge_2024-11-28.tsv", header=T)
+net_edges <- read.table("OG/CYTOSCAPE//TOM_full_edge_2024-11-28.tsv", header=T)
 
-net_nodes <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/CYTOSCAPE//TOM_full_node_2024-11-28.tsv", header=T, sep = "\t") 
+net_nodes <- read.table("OG/CYTOSCAPE//TOM_full_node_2024-11-28.tsv", header=T, sep = "\t") 
 
 
 module_df <- net_nodes %>% 
@@ -383,4 +319,4 @@ png(file = "WGCNA/documentation/pics/OG/hub_genes_sft9_ds0_mch035_edited.png", w
 dev.off()
 
 # write list of genes
-write.csv( combined_results,"/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/2024_11_28_OG_hub.csv")
+write.csv( combined_results,"OG/2024_11_28_OG_hub.csv")

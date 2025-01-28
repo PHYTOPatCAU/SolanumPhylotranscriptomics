@@ -1,9 +1,11 @@
-# plot signature for the spen key-tfs
+# QDR RNAseq Solanum species
+# plot signature for the of TF-GRNs
+# Severin Einspanier
 rm(list=ls())
 pacman::p_load(tidyverse, myTAI, ggpubr)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
-set_one <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/GRN/spen/Sopen09g001470_grn_network_nodes_filtered.txt",
+set_one <- read.table("Sopen09g001470_grn_network_nodes_filtered.txt",
                       header=T, sep="\t")
 
 # load meta data for annotation 
@@ -27,7 +29,7 @@ myTAI::PlotEnrichment(
 
 # Set Two
 
-set_two <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/GRN/spen/Sopen10g006210_grn_network_nodes_filtered.txt",
+set_two <- read.table("Sopen10g006210_grn_network_nodes_filtered.txt",
                       header=T, sep="\t")
 
 myTAI::PlotEnrichment(
@@ -42,7 +44,7 @@ PlotSignature(ExpressionSet=(spen_tai %>% filter(GeneID%in%tolower(set_two$genes
 
 # Set Three
 
-set_three <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/GRN/spen/Sopen05g003630_grn_network_nodes_filtered.txt",
+set_three <- read.table("Sopen05g003630_grn_network_nodes_filtered.txt",
                       header=T, sep="\t")
 
 myTAI::PlotEnrichment(
@@ -72,7 +74,7 @@ spen_tai <- read.csv("TAI/data/2024_11_25_slyco_TA_reads.csv") %>%
   pivot_wider(names_from = pseudofactor, values_from = exp) 
 
 
-set_one <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/GRN/slyco/Solyd02g064330_grn_network_nodes_filtered.txt",
+set_one <- read.table("Solyd02g064330_grn_network_nodes_filtered.txt",
                       header=T, sep="\t")
 
 myTAI::PlotEnrichment(
@@ -83,7 +85,7 @@ myTAI::PlotEnrichment(
 )
 
 
-set_two <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/GRN/slyco/Solyd09g071070_grn_network_nodes_filtered.txt",
+set_two <- read.table("Solyd09g071070_grn_network_nodes_filtered.txt",
                       header=T, sep="\t")
 
 myTAI::PlotEnrichment(
@@ -93,7 +95,7 @@ myTAI::PlotEnrichment(
   
 )
 
-set_three <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/GRN/slyco/Solyd03g050610_grn_network_nodes_filtered.txt",
+set_three <- read.table("Solyd03g050610_grn_network_nodes_filtered.txt",
                       header=T, sep="\t")
 
 myTAI::PlotEnrichment(

@@ -1,9 +1,11 @@
+# QDR RNAseq Solanum species
 # Plot the per-module TDI signature of S. pennellii and S. lycopersicoides
 # Severin Einspanier
 # 2025_01_05
+
 rm(list=ls())
 pacman::p_load(tidyverse, myTAI, ggpubr)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
 # spen
 
@@ -21,7 +23,7 @@ spen_TDI <- read.csv("TDI/data/2024_11_25_spen_DS_reads.csv") %>%
   select(!X) %>% 
   pivot_wider(names_from = pseudofactor, values_from = exp)
 
-spen_resistance_module <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/spen/TOM_INFL_filtered_node_2024-12-17_filtered.tsv") %>% 
+spen_resistance_module <- read.delim("TOM_INFL_filtered_node_2024-12-17_filtered.tsv") %>% 
   mutate(nodeName = tolower(nodeName)) %>%
   rename(module_name=nodeAttr.nodesPresent...) %>% 
   unique()
@@ -42,7 +44,7 @@ for (module in modules) {
   
   plots[[module]] <- plot
 }
-svg("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/TEST_IMG_TDI_SPEN_all.svg", 
+svg("TEST_IMG_TDI_SPEN_all.svg", 
     width = 10, height = 20)
 ggarrange(plotlist = plots, ncol = 2, nrow = 4, 
           labels=modules)
@@ -67,7 +69,7 @@ slyco_TDI <- read.csv("TDI/data/2024_11_25_slyco_DS_reads.csv") %>%
   pivot_wider(names_from = pseudofactor, values_from = exp)
 
 
-slyco_resistance_module <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/slyco/TOM_INFL_filtered_node_2024-12-13.tsv") %>% 
+slyco_resistance_module <- read.delim("TOM_INFL_filtered_node_2024-12-13.tsv") %>% 
   mutate(nodeName = tolower(nodeName)) %>%
   rename(module_name=nodeAttr.nodesPresent...) %>% 
   unique()
@@ -89,7 +91,7 @@ for (module in modules) {
   
   plots[[module]] <- plot
 }
-svg("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/TEST_IMG_TDI_SLYCO_all.svg", 
+svg("TEST_IMG_TDI_SLYCO_all.svg", 
     width = 10, height = 20)
 ggarrange(plotlist = plots, ncol = 2, nrow = 5, 
           labels=modules)
