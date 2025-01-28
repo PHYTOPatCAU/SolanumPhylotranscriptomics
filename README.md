@@ -1,11 +1,16 @@
 # Highly Specific Gene Regulatory Networks Determine Quantitative Disease Resistance of Wild Tomatoes Against a Necrotrophic Pathogen
 
+**Manuscript currently in review**
 ## Authors
 
-**Severin Einspanier**, *Department of Phytopathology and Crop Protection, Institute of Phytopathology, Faculty of Agricultural and Nutritional Sciences, Christian Albrechts University, Kiel, Germany*  
-**Christopher Tominello-Ramirez**, *Department of Phytopathology and Crop Protection, Institute of Phytopathology, Faculty of Agricultural and Nutritional Sciences, Christian Albrechts University, Kiel, Germany*  
-**Florent Delplace**, *Laboratoire des Interactions Plantes Microorganismes Environnement (LIPME), INRAE, CNRS, Castanet Tolosan Cedex, France*  
-**Remco Stam**, *Department of Phytopathology and Crop Protection, Institute of Phytopathology, Faculty of Agricultural and Nutritional Sciences, Christian Albrechts University, Kiel, Germany*
+**Severin Einspanier**,  
+&nbsp;&nbsp;&nbsp;&nbsp;*Department of Phytopathology and Crop Protection, Institute of Phytopathology, Faculty of Agricultural and Nutritional Sciences, Christian Albrechts University, Kiel, Germany*  
+**Christopher Tominello-Ramirez**,  
+&nbsp;&nbsp;&nbsp;&nbsp;*Department of Phytopathology and Crop Protection, Institute of Phytopathology, Faculty of Agricultural and Nutritional Sciences, Christian Albrechts University, Kiel, Germany*  
+**Florent Delplace**,  
+&nbsp;&nbsp;&nbsp;&nbsp;*Laboratoire des Interactions Plantes Microorganismes Environnement (LIPME), INRAE, CNRS, Castanet Tolosan Cedex, France*  
+**Remco Stam**,  
+&nbsp;&nbsp;&nbsp;&nbsp;*Department of Phytopathology and Crop Protection, Institute of Phytopathology, Faculty of Agricultural and Nutritional Sciences, Christian Albrechts University, Kiel, Germany*
 
 Please address correspondence to: s.einspanier@phytomed.uni-kiel.de or r.stam@phytomed.uni-kiel.de
 
