@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=GenEra_schil                  # Job name
-#SBATCH --output=/gxfs_home/cau/suaph281/debug/LDT_rnaseq/GenEra/GenEra_schil.out  # Output file
-#SBATCH --error=/gxfs_home/cau/suaph281/debug/LDT_rnaseq/GenEra/GenEra_schil.err   # Error file
+#SBATCH --output=GenEra/GenEra_schil.out  # Output file
+#SBATCH --error=GenEra/GenEra_schil.err   # Error file
 #SBATCH --nodes=1                         # Number of nodes
 #SBATCH --tasks-per-node=2                # Number of tasks (processes)
 #SBATCH --cpus-per-task=16                # Number of CPU cores per task
@@ -14,7 +14,7 @@ module load singularity
 # mktemp 
 
 # Directory to check/create
-DIR="$WORK/RNAseq/RNAseq_work/data/TAI/2024_11_21/schil/"
+DIR="schil/"
 
 # Check if directory exists
 if [ -d "$DIR" ]; then
@@ -31,10 +31,7 @@ else
 fi
 
 
-
-cd $WORK/RNAseq/RNAseq_work/data/TAI
-
-export SINGULARITY_BIND="/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data//:/mnt"
+export SINGULARITY_BIND="/data//:/mnt"
 
 DIR="TAI/2024_11_21/schil"
 

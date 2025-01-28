@@ -14,7 +14,7 @@ module load singularity
 # mktemp 
 
 # Directory to check/create
-DIR="$WORK/RNAseq/RNAseq_work/data/TAI/2024_11_21/shabro/"
+DIR="$WORK/shabro/"
 
 # Check if directory exists
 if [ -d "$DIR" ]; then
@@ -31,17 +31,7 @@ else
 fi
 
 
-
-#cd $WORK/RNAseq/references/shabr/shabr_GeneExt_CDS.fasta.transdecoder_dir/
-
-#cat longest_orfs.pep | sed 's/ .*//' > longest_orfs_noasterics.fasta
-
-#cd $WORK/RNAseq/RNAseq_work/TAI
-
-
-cd $WORK/RNAseq/RNAseq_work/data/TAI
-
-export SINGULARITY_BIND="/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data//:/mnt"
+export SINGULARITY_BIND="RNAseq_work/data//:/mnt"
 
 DIR="TAI/2024_11_21/shabro"
 

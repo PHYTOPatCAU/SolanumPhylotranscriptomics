@@ -1,15 +1,15 @@
-# Get GRN S. pimpinellifolium 
+# QDR RNAseq Solanum species
+# Perform GRN analysis on S. pimpinellifolium 
 # Severin Einspanier
 # 2025-01-10
 
 rm(list=ls())
-pacman::p_load(tidyverse, GENIE3, segmented)
+pacman::p_load(tidyverse, GENIE3, segmented, igraph)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
+setwd("/")
 options(stringsAsFactors = FALSE)
 
-ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spimp_curated_proteome_OG_pannzer_dedub_ids.txt",
-    header=F) %>%
+ids <- read.delim("spimp_curated_proteome_OG_pannzer_dedub_ids.txt", header=F) %>%
     mutate(gene=gsub(">", "", V1)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA_", "", gene))%>%  
@@ -19,22 +19,22 @@ ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spim
     mutate(gene=gsub("\\.[1-9].*|\\.p[1-9].*", "",gene))%>%
     dplyr::select(gene)
 
-modules <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/TOM_final_moduleColors_genids.txt", row.names=1,sep=" ")
-GO_TERM <- read.csv("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/spimp/filtered_protein_names_spimp.csv", header=T, row.names=1)
-wgcna_hub <- read.csv("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/HUB/2025_01_11_spimp_hub.csv", row.names=1)
+modules <- read.delim("TOM_final_moduleColors_genids.txt", row.names=1, sep=" ")
+GO_TERM <- read.csv("filtered_protein_names_spimp.csv", header=T, row.names=1)
+wgcna_hub <- read.csv("2025_01_11_spimp_hub.csv", row.names=1)
 
 # filter the gene expression:
 
-datExpr <- read.csv("DeSeq/data/norm_counts_all_rlog.csv") %>%
+datExpr <- read.csv("norm_counts_all_rlog.csv") %>%
   dplyr::filter(species=="S. pimpinellifolium" & Geneid %in% ids$gene) %>% 
   dplyr::select(!species & !source) %>%
   pivot_wider(names_from=sample, values_from=normalized_count) %>%
   column_to_rownames("Geneid") %>%
   as.matrix()
 
-TF <- read.delim("GRN/data/spimp_TFs/spimp_TFs.txt", header=F)
+TF <- read.delim("spimp_TFs.txt", header=F)
 
-colnames(TF)=c("gene", "TF")
+colnames(TF) = c("gene", "TF")
 
 TF_ids <- TF %>%
     mutate(gene=gsub(">", "", gene)) %>%
@@ -47,8 +47,6 @@ TF_ids <- TF %>%
     dplyr::select(gene) %>%
     unique()
 
-#go_term <- read.delim()
-
 head(TF)
 
 head(TF_ids)
@@ -56,10 +54,8 @@ dim(TF_ids)
 
 # which TFs are not findable?
 
-library(GENIE3)
 expressed_TFs <- TF_ids %>% 
   filter(gene %in% rownames(datExpr))
-
 
 weightMat <- GENIE3(datExpr, regulators=expressed_TFs$gene, nCores=30)
 
@@ -67,7 +63,6 @@ weightMat <- GENIE3(datExpr, regulators=expressed_TFs$gene, nCores=30)
 
 wam_linked_list <- getLinkList(weightMatrix = weightMat) %>%
     mutate_if(is.factor, as.character)
-
 
 # calculate edge weight threshold
 
@@ -101,7 +96,7 @@ brkpnt_fun <- function(x, y, output_file = "breakpoint_plot.png") {
   ggsave(output_file, plot = p)
 }
 
-breakpont <- brkpnt_fun(wam_linked_list$weight,7,paste0("GRN/documentation/pics/", Sys.Date(), "_spimp_breakpoints.png"))
+breakpont <- brkpnt_fun(wam_linked_list$weight, 7, paste0("spimp_breakpoints.png"))
 
 # picked 0.00389222870601993
 # filter dataframe with eigencentrality threshold
@@ -116,15 +111,14 @@ genes_names <- as.data.frame(genes) %>%
 dim(genes_names)
 
 #### define hubs 
-library(igraph)
-grn_nodes_all_eigen <- graph_from_data_frame(grn_edges_all)  # generate igraph onject
+
+grn_nodes_all_eigen <- graph_from_data_frame(grn_edges_all)  # generate igraph object
 grn_all_eigen <- eigen_centrality(grn_nodes_all_eigen)  # calculate eigenvector centrality
 
 grn_all_eigen <- data.frame(egnvctr = unname(grn_all_eigen[["vector"]]),  # generate dataframe of genes
                              gene = names(grn_all_eigen[["vector"]]))     # and eigenvector centrality
 
-
-breakpont <- brkpnt_fun((grn_all_eigen$egnvctr),5, paste0("GRN/documentation/pics/", Sys.Date(), "_spimp_breakpoints_hubs.png"))
+breakpont <- brkpnt_fun((grn_all_eigen$egnvctr), 5, paste0("spimp_breakpoints_hubs.png"))
 # selected 0.0885903057417448
 hubs <- grn_all_eigen[grn_all_eigen$egnvctr > 0.0885903057417448,]
 
@@ -136,10 +130,9 @@ genes_names_wth_hubs <- genes_names %>%
     left_join(wgcna_hub, by=c("genes"="gene")) 
     # also append WGRC hubs 
 
-
 dim(genes_names_wth_hubs)
 head(genes_names_wth_hubs)
-write_delim(genes_names_wth_hubs, file = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GRN/spimp_grn_network_nodes.txt", delim = "\t")
+write_delim(genes_names_wth_hubs, file = "spimp_grn_network_nodes.txt", delim = "\t")
 
 # output GRN network
-write_delim(grn_edges_all, file = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GRN/spimp_grn_network_edges.txt", delim = "\t")
+write_delim(grn_edges_all, file = "spimp_grn_network_edges.txt", delim = "\t")

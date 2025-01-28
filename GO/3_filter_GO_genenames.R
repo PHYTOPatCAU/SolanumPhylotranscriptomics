@@ -1,8 +1,12 @@
-# Quickly filter anno.out for node-annotation 
+# QDR RNAseq Solanum species
+# Filter anno.out for node-annotation (GO-IDs must match GENE names)
+# Severin Einspanier
+
+
 rm(list=ls())
 library(tidyverse)
 
-GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/spen/anno.out")%>% 
+GO_TERM <- read.delim("spen/anno.out")%>% 
     mutate(gene=gsub(">", "", qpid)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA_", "", gene))%>%  
@@ -14,10 +18,10 @@ GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/
     dplyr::select(gene, desc)
 dim(GO_TERM)
 
-write.csv(GO_TERM, "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/spen/filtered_protein_names_spen.csv")
+write.csv(GO_TERM, "spen/filtered_protein_names_spen.csv")
 head(GO_TERM)
 
-GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/slyco/anno.out")%>% 
+GO_TERM <- read.delim("slyco/anno.out")%>% 
     mutate(gene=gsub(">", "", qpid)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA_", "", gene))%>%  
@@ -29,10 +33,10 @@ GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/
     dplyr::select(gene, desc)
 dim(GO_TERM)
 
-write.csv(GO_TERM, "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/slyco/filtered_protein_names_slyco.csv")
+write.csv(GO_TERM, "slyco/filtered_protein_names_slyco.csv")
 head(GO_TERM)
 
-GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/spimp/anno.out")%>% 
+GO_TERM <- read.delim("spimp/anno.out")%>% 
     mutate(gene=gsub(">", "", qpid)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA_", "", gene))%>%  
@@ -45,10 +49,10 @@ GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/
 
 dim(GO_TERM)
 
-write.csv(GO_TERM, "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/spimp/filtered_protein_names_spimp.csv")
+write.csv(GO_TERM, "spimp/filtered_protein_names_spimp.csv")
 head(GO_TERM)
 
-GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/shabr/anno.out")%>% 
+GO_TERM <- read.delim("shabr/anno.out")%>% 
     mutate(gene=gsub(">", "", qpid)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA_", "", gene))%>%  
@@ -60,11 +64,11 @@ GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/
     dplyr::select(gene, desc)
 dim(GO_TERM)
 
-write.csv(GO_TERM, "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/shabr/filtered_protein_names_shabro.csv")
+write.csv(GO_TERM, "shabr/filtered_protein_names_shabro.csv")
 
 head(GO_TERM)
 
-GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/schil/anno.out")%>% 
+GO_TERM <- read.delim("schil/anno.out")%>% 
     mutate(gene=gsub(">", "", qpid)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA_", "", gene))%>%  
@@ -76,5 +80,5 @@ GO_TERM <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/
     dplyr::select(gene, desc)
 dim(GO_TERM)
 
-write.csv(GO_TERM, "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/schil/filtered_protein_names_schil.csv")
+write.csv(GO_TERM, "schil/filtered_protein_names_schil.csv")
 head(GO_TERM)

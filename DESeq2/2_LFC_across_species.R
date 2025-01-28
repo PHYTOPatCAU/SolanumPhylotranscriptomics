@@ -1,20 +1,22 @@
+# QDR RNAseq Solanum species
 # LFC distribution of all DEGs
 # contrast: all samples Inf vs Mock
 # Severin Einspanier 
+# 2024_09_13
 library(tidyverse)
 library(ggtext)
 library(ggdist)
 library(glue)
 library(patchwork)
 rm(list=ls())
-setwd("C:/Users/Sever//Desktop/")
-setwd("C:/Users/suaph281//Desktop/GitLab/2024_solanum_ldt_rnaseq/")
 
-data_LFC_sus <- read.csv("DeSeq/data/DeSeq_OUT/combined_SUS_inf_mock.csv") %>% 
+setwd()
+
+data_LFC_sus <- read.csv("DeSeq_OUT/combined_SUS_inf_mock.csv") %>% 
   mutate(res="SUSCEPTIBLE") %>% 
   select(-X)
 
-data_LFC <- read.csv("DeSeq/data/DeSeq_OUT/combined_RES_inf_mock.csv") %>% 
+data_LFC <- read.csv("DeSeq_OUT/combined_RES_inf_mock.csv") %>% 
   mutate(res="RESISTANT") %>% 
   select(-X) %>% 
   bind_rows(data_LFC_sus) %>% 
@@ -25,7 +27,7 @@ data_LFC <- read.csv("DeSeq/data/DeSeq_OUT/combined_RES_inf_mock.csv") %>%
 
 bg_color <- "grey97"
 font_family <- "Fira Sans"
-svg(paste0("C:/Users/suaph281//Nextcloud/ResiDEvo/sequencing/figures/fig_2/", Sys.Date(),"_LFC_INF_MOCK.svg"), 
+svg(paste0("C:figures/fig_2/", Sys.Date(),"_LFC_INF_MOCK.svg"), 
     width=12, height=9, bg="transparent")
 (p1 <- data_LFC %>% 
     ggplot(aes(x=log2FoldChange,y=species, fill=`Resistance-Level`,col=`Resistance-Level`))+
@@ -69,6 +71,6 @@ svg(paste0("C:/Users/suaph281//Nextcloud/ResiDEvo/sequencing/figures/fig_2/", Sy
 )
 
 dev.off()
-ggsave("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/2024_09_13_LFC_INF_MOCK.svg", 
+ggsave("figures/2024_09_13_LFC_INF_MOCK.svg", 
        p1, width=7, height=8, dpi=900)
 

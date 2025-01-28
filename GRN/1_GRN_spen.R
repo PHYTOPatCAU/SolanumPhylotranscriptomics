@@ -1,13 +1,15 @@
-# Get GRN S lycopersicoides
+# QDR RNAseq Solanum species
+# Perform GRN analysis on Spennellii 
+# Severin Einspanier
+# 2025_01_10
 
 rm(list=ls())
 pacman::p_load(tidyverse, GENIE3, segmented, pheatmap)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
+setwd("")
 options(stringsAsFactors = FALSE)
 
-ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/slyco_curated_proteome_OG_pannzer_dedub_ids.txt",
-    header=F) %>%
+ids <- read.delim("spen_curated_proteome_OG_pannzer_dedub_ids.txt", header=F) %>%
     mutate(gene=gsub(">", "", V1)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA_", "", gene))%>%  
@@ -17,22 +19,22 @@ ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/slyc
     mutate(gene=gsub("\\.[1-9].*|\\.p[1-9].*", "",gene))%>%
     dplyr::select(gene)
 
-modules <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/slyco/TOM/slyco_module_colors_TOM_filtered_genids.txt", row.names=1,sep=" ")
-GO_TERM <- read.csv("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GO_terms/slyco/filtered_protein_names_spen.csv", header=T, row.names=1)
-wgcna_hub <- read.csv("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/slyco/HUB/2025_01_08_slyco_hub.csv", row.names=1)
+modules <- read.delim("module_colors_TOM_filtered_genids.txt", row.names=1, sep=" ")
+GO_TERM <- read.csv("filtered_protein_names_spen.csv", header=T, row.names=1)
+wgcna_hub <- read.csv("2025_01_08_spen_hub.csv", row.names=1)
 
 # filter the gene expression:
 
-datExpr <- read.csv("DeSeq/data/norm_counts_all_rlog.csv") %>%
-  dplyr::filter(species=="S. lycopersicoides" & Geneid %in% ids$gene) %>% 
+datExpr <- read.csv("norm_counts_all_rlog.csv") %>%
+  dplyr::filter(species=="S. pennellii" & Geneid %in% ids$gene) %>% 
   dplyr::select(!species & !source) %>%
   pivot_wider(names_from=sample, values_from=normalized_count) %>%
   column_to_rownames("Geneid") %>%
   as.matrix()
 
-TF <- read.delim("GRN/data/slyco_TFs/slyco_TFs.txt", header=F)
+TF <- read.delim("spen_TFs.txt", header=F)
 
-colnames(TF)=c("gene", "TF")
+colnames(TF) = c("gene", "TF")
 
 TF_ids <- TF %>%
     mutate(gene=gsub(">", "", gene)) %>%
@@ -51,9 +53,8 @@ head(TF_ids)
 dim(TF_ids)
 
 expr_TFs <- datExpr %>% 
-  dplyr::filter(!rownames(.) %in% TF_ids$gene) 
+  filter(!rownames(.) %in% TF_ids$gene) 
 dim(expr_TFs)
-
 
 # which TFs are not findable?
 
@@ -64,10 +65,10 @@ head(missing)
 # but seems like editing is not the issue:
 # cant find them in the rlogs ... 
 
-
+# continue 
+library(GENIE3)
 expressed_TFs <- TF_ids %>% 
   filter(gene %in% rownames(datExpr))
-dim(missing)
 
 weightMat <- GENIE3(datExpr, regulators=expressed_TFs$gene, nCores=30)
 
@@ -75,7 +76,6 @@ weightMat <- GENIE3(datExpr, regulators=expressed_TFs$gene, nCores=30)
 
 wam_linked_list <- getLinkList(weightMatrix = weightMat) %>%
     mutate_if(is.factor, as.character)
-
 
 # calculate edge weight threshold
 
@@ -109,11 +109,11 @@ brkpnt_fun <- function(x, y, output_file = "breakpoint_plot.png") {
   ggsave(output_file, plot = p)
 }
 
-breakpont <- brkpnt_fun(wam_linked_list$weight,7,paste0("GRN/documentation/pics/", Sys.Date(), "_slyco_breakpoints.png"))
+breakpont <- brkpnt_fun(wam_linked_list$weight, 7, paste0("spen_breakpoints.png"))
 
-# picked 0.00396004960324319
+# picked 0.00407955667163928
 # filter dataframe with eigencentrality threshold
-grn_edges_all <- wam_linked_list[wam_linked_list$weight > 0.00396004960324319,]
+grn_edges_all <- wam_linked_list[wam_linked_list$weight > 0.00407955667163928,]
 
 genes <- append(wam_linked_list$regulatoryGene, wam_linked_list$targetGene) %>% as.character() %>% unique() %>% sort()
 
@@ -125,16 +125,15 @@ dim(genes_names)
 
 #### define hubs 
 
-grn_nodes_all_eigen <- graph_from_data_frame(grn_edges_all)  # generate igraph onject
+grn_nodes_all_eigen <- graph_from_data_frame(grn_edges_all)  # generate igraph object
 grn_all_eigen <- eigen_centrality(grn_nodes_all_eigen)  # calculate eigenvector centrality
 
 grn_all_eigen <- data.frame(egnvctr = unname(grn_all_eigen[["vector"]]),  # generate dataframe of genes
                              gene = names(grn_all_eigen[["vector"]]))     # and eigenvector centrality
 
-
-breakpont <- brkpnt_fun((grn_all_eigen$egnvctr),5, paste0("GRN/documentation/pics/", Sys.Date(), "_slyco_breakpoints_hubs.png"))
-# selected 0.0516089702523873
-hubs <- grn_all_eigen[grn_all_eigen$egnvctr > 0.0516089702523873,]
+breakpont <- brkpnt_fun((grn_all_eigen$egnvctr), 5, paste0("spen_breakpoints_hubs.png"))
+# selected 0.0283594202699945
+hubs <- grn_all_eigen[grn_all_eigen$egnvctr > 0.0283594202699945,]
 
 genes_names_wth_hubs <- genes_names %>% 
     left_join(hubs, by=c("genes"="gene")) %>%
@@ -144,10 +143,9 @@ genes_names_wth_hubs <- genes_names %>%
     left_join(wgcna_hub, by=c("genes"="gene")) 
     # also append WGRC hubs 
 
-
 dim(genes_names_wth_hubs)
 head(genes_names_wth_hubs)
-write_delim(genes_names_wth_hubs, file = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GRN/slyco_grn_network_nodes.txt", delim = "\t")
+write_delim(genes_names_wth_hubs, file = "spen_grn_network_nodes.txt", delim = "\t")
 
 # output GRN network
-write_delim(grn_edges_all, file = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/GRN/slyco_grn_network_edges.txt", delim = "\t")
+write_delim(grn_edges_all, file = "spen_grn_network_edges.txt", delim = "\t")

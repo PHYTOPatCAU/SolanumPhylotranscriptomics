@@ -2,7 +2,7 @@
 # Vizualization of Resistance-TFs 
 # of S. lycopersicoides in all other 
 # Solanum species
-# SUSCPETIBILITY
+# 
 # Severin Einspanier
 # 2025_01_13
 ###################################
@@ -14,7 +14,7 @@ pacman::p_load(tidyverse, ComplexHeatmap, circlize)
 rm(list = ls())
 
 # Set working directory
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
 #==========================
 # 1) LOAD ORTHOGROUP DATA
@@ -26,13 +26,13 @@ shabroID2OG <- read.csv("OGs/data/genid2goid_shabro.csv", row.names=1)
 spimpID2OG  <- read.csv("OGs/data/genid2goid_spimp.csv",  row.names=1)
 
 # define the genes. Upregulated in the resistant genotype
-slyco_genes <- c("Solyd12g053860", "Solyc08g069880", "Solyd07g073870")
+slyco_genes <- c("Solyd03g050610", "Solyd02g064330", "Solyd09g071070")
 # Which Orthogroups do these genes belong to?
 
 OG_of_interest <- slycoID2OG %>% 
   filter(GeneID %in% slyco_genes)
 
-OG_info <- read_tsv("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/orthofinder/NOV_2024_ITAG_PANNZER/Orthogroups/Orthogroups.GeneCount.tsv"
+OG_info <- read_tsv("Orthogroups.GeneCount.tsv"
 ) %>% 
   filter(Orthogroup %in% OG_of_interest$OG)
 # found in all species
@@ -40,7 +40,7 @@ OG_info <- read_tsv("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/orthofinder
 #==========================
 # 2) RESISTANCE MODULES
 #==========================
-res_modules <- read.table("WGCNA/data/resistance_modules_all_species.txt", header = TRUE) %>% 
+res_modules <- read.table("resistance_modules_all_species.txt", header = TRUE) %>% 
   mutate(is_resistance = 1)
 
 res_modules_spimp <- res_modules %>% filter(Species == "spimp")
@@ -63,13 +63,13 @@ res_modules_spen  <- res_modules %>% filter(Species == "spen")
 load_expression_data <- function(species_label, og_map) {
   
   # Resist
-  df_res <- read.csv("DeSeq/data/DeSeq_OUT/combined_RES_inf_mock.csv") %>%
+  df_res <- read.csv("combined_RES_inf_mock.csv") %>%
     filter(species == species_label) %>%
     mutate(res = log2FoldChange) %>%
     dplyr::select(GeneID, res)
   
   # Susceptible
-  df_sus <- read.csv("DeSeq/data/DeSeq_OUT/combined_SUS_inf_mock.csv") %>%
+  df_sus <- read.csv("combined_SUS_inf_mock.csv") %>%
     filter(species == species_label) %>%
     mutate(sus = log2FoldChange) %>%
     dplyr::select(GeneID, sus)
@@ -112,7 +112,7 @@ merged <- bind_rows(
 # 4) WHICH OGs TO VISUALIZE?
 #==============================
 
-OGs <- OG_of_interest$OG
+OGs <- c("OG0000116", "OG0003738", "OG0009560")
 
 
 # Filter your orthogroup mappings to these OGs only
@@ -130,7 +130,7 @@ spenID2OG_f   <- spenID2OG   %>% filter(OG %in% OGs)
 # and tag each gene as "Resistance" or "Non-Resistance"
 # depending on membership in the modules from res_modules_*
 
-schil_module <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/schil/moduleColorsTOM_ds2_mch25_genids.txt",
+schil_module <- read.table("moduleColorsTOM_ds2_mch25_genids.txt",
                            header = TRUE) %>%
   right_join(schilID2OG_f, by = "GeneID") %>%
   mutate(WGCNA = if_else(ModuleColor %in% res_modules_schil$Module,
@@ -140,25 +140,25 @@ schil_module <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCN
          GeneID = str_replace(GeneID, "__2_contigs__length_", "c"),
          GeneID = str_replace(GeneID, "__3_contigs__length_", "c"))
 
-slyco_module <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/slyco/slyco_module_colors_TOM_filtered_genids.txt",
+slyco_module <- read.table("slyco_module_colors_TOM_filtered_genids.txt",
                            header = TRUE) %>%
   right_join(slycoID2OG_f, by = "GeneID") %>%
   mutate(WGCNA = if_else(ModuleColor %in% res_modules_slyco$Module,
                          "Resistance", "Non-Resistance"))
 
-shabro_module <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/shabro/TOMfinal_module_colors_geneids.txt",
+shabro_module <- read.table("TOMfinal_module_colors_geneids.txt",
                             header = TRUE) %>%
   right_join(shabroID2OG_f, by = "GeneID") %>%
   mutate(WGCNA = if_else(ModuleColor %in% res_modules_shabro$Module,
                          "Resistance", "Non-Resistance"))
 
-spimp_module <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/spimp/TOM_final_moduleColors_genids.txt",
+spimp_module <- read.table("TOM_final_moduleColors_genids.txt",
                            header = TRUE) %>%
   right_join(spimpID2OG_f, by = "GeneID") %>%
   mutate(WGCNA = if_else(ModuleColor %in% res_modules_spimp$Module,
                          "Resistance", "Non-Resistance"))
 
-spen_module <- read.table("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/spen/module_colors_TOM_filtered_genids.txt",
+spen_module <- read.table("module_colors_TOM_filtered_genids.txt",
                           header = TRUE) %>%
   right_join(spenID2OG_f, by = "GeneID") %>%
   mutate(WGCNA = if_else(ModuleColor %in% res_modules_spen$Module,
@@ -238,19 +238,22 @@ ha1 <- rowAnnotation(
   df = ann_1, 
   col = annot_colors, 
   show_annotation_name = FALSE,
-  show_legend = FALSE  # disable automatic annotation legends
+  show_legend = FALSE, 
+  gp= gpar(col="black", lwd = 2)  # disable automatic annotation legends
 )
 ha2 <- rowAnnotation(
   df = ann_2, 
   col = annot_colors, 
   show_annotation_name = FALSE,
-  show_legend = FALSE
+  show_legend = FALSE, 
+  gp= gpar(col="black", lwd = 2)
 )
 ha3 <- rowAnnotation(
   df = ann_3, 
   col = annot_colors, 
   show_annotation_name = T,
-  show_legend = FALSE
+  show_legend = FALSE, 
+  gp= gpar(col="black", lwd = 2)
 )
 
 #=========================
@@ -270,10 +273,8 @@ h1 <- Heatmap(
   rect_gp           = gpar(col = "black", lwd = 2),
   border            = "black",
   na_col            = "grey",
-  show_heatmap_legend = T  # turn off color legend for this heatmap
+  show_heatmap_legend = FALSE  # turn off color legend for this heatmap
 )
-
-draw(h1)
 
 h2 <- Heatmap(
   mat2,
@@ -289,10 +290,8 @@ h2 <- Heatmap(
   rect_gp           = gpar(col = "black", lwd = 2),
   border            = "black",
   na_col            = "grey",
-  show_heatmap_legend = T
+  show_heatmap_legend = FALSE
 )
-
-draw(h2)
 
 h3 <- Heatmap(
   mat3,
@@ -348,9 +347,9 @@ annotation_legends <- packLegend(
 #============================
 png(
   filename = paste0(
-    "C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_7/",
+    "fig_7/",
     Sys.Date(),
-    "_slyco_sus_TFs_expression_across.png"
+    "_slyco_resis_TFs_expression_across.png"
   ),
   width  = 16.5, 
   height = 27, 

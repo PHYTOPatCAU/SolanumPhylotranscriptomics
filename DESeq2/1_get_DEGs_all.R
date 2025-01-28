@@ -1,8 +1,12 @@
+# QDR RNAseq Solanum species
+# Severin Einspanier
+# Perform basic DeSeq Analysis on all samples
+# 2024_09
+
 rm(list=ls())
 library(DESeq2)
 library(tidyverse)
 
-# New updated version of DEG-Extraktion 
 
 ### FUNCTIONS
 
@@ -87,18 +91,18 @@ setwd("C:/Users/Sever//Desktop/")
 species_paths <- data.frame(
   species = c("S. pennellii", "S. chilense", "S. pimpinellifolium", "S. habrochaites", "S. lycopersicoides"),
   counts_table_path = c(
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/DeSeq_IN/counts_table_matrix_spen",
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/DeSeq_IN/counts_table_matrix_schil",
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/DeSeq_IN/counts_table_matrix_spim",
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/DeSeq_IN/counts_table_matrix_shabr",
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/DeSeq_IN/counts_table_matrix_slyco"
+    "counts_table_matrix_spen",
+    "counts_table_matrix_schil",
+    "counts_table_matrix_spim",
+    "counts_table_matrix_shabr",
+    "Gcounts_table_matrix_slyco"
   ),
   sample_info_path = c(
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/sample_infos_spen.csv",
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/sample_infos_schil.csv",
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/sample_infos_spimp.csv",
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/sample_infos_shabro.csv",
-    "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/sample_infos_slyco.csv"
+    "sample_infos_spen.csv",
+    "sample_infos_schil.csv",
+    "sample_infos_spimp.csv",
+    "sample_infos_shabro.csv",
+    "sample_infos_slyco.csv"
   ),
   stringsAsFactors = FALSE
 )
@@ -141,14 +145,6 @@ combined_results_all_genes <- do.call(rbind, lapply(results_list, function(df) {
   return(df)
 }))
 
-#comdined_results_all_genes_intermediate <- combined_results_all_genes %>% 
-#  mutate(res="SUSCEPTIBLE") %>% 
-#  remove_rownames()
-# run again with RES_inf_mock
-#comdined_results_all_genes_all <- combined_results_all_genes %>% 
-#  mutate(res="RESISTANT") %>% 
-#  remove_rownames() %>% 
-#  bind_rows(comdined_results_all_genes_intermediate)
 
 # Access results for each species
 results_DEGs_pen <- results_DEGs_list[["S. pennellii"]]
@@ -177,7 +173,7 @@ DEG_names_slyco_down <- DEG_names_down_list[["S. lycopersicoides"]]
 slyco_DEGs_all <- DEGs_all_list[["S. lycopersicoides"]]
 
 
-## STORE RESULTS
+## write RESULTS
 
-write.csv(combined_results_all_genes, "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/DeSeq_OUT/combined_SUS_inf_mock.csv")
-write.csv(combined_results_DEGs, "GitLab/2024_solanum_ldt_rnaseq/DeSeq/data/DeSeq_OUT/combined_SUS_inf_mock_DEGs.csv")
+write.csv(combined_results_all_genes, "DeSeq_OUT/combined_SUS_inf_mock.csv")
+write.csv(combined_results_DEGs, "DeSeq_OUT/combined_SUS_inf_mock_DEGs.csv")
