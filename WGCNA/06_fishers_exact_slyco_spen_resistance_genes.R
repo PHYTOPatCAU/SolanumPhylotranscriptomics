@@ -9,7 +9,7 @@
 rm(list=ls())
 pacman::p_load(tidyverse)
 
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
 ###############################################################
 # 1) Read and clean input data
@@ -28,7 +28,7 @@ spen_genid2goid <- read.csv("OGs/data/genid2goid_spen.csv", row.names = 1) %>%
   select(OG, gene) %>% 
   distinct()
 
-spen_nodes <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/spen/TOM_INFL_filtered_node_2024-12-17_filtered.tsv") %>% 
+spen_nodes <- read.delim("spen/TOM_INFL_filtered_node_2024-12-17_filtered.tsv") %>% 
   left_join(spen_genid2goid, by = c("nodeName" = "gene")) %>% 
   distinct()
 
@@ -45,7 +45,7 @@ slyco_genid2goid <- read.csv("OGs/data/genid2goid_slyco.csv", row.names = 1) %>%
   select(OG, gene) %>% 
   distinct()
 
-slyco_nodes <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/slyco/TOM_INFL_filtered_node_2024-12-19_filtered.tsv") %>% 
+slyco_nodes <- read.delim("slyco/TOM_INFL_filtered_node_2024-12-19_filtered.tsv") %>% 
   left_join(slyco_genid2goid, by = c("nodeName" = "gene")) %>% 
   distinct()
 
@@ -252,13 +252,13 @@ fisher_results_rev <- fisher_results_rev %>%
 # Viz both 
 ######
 
-svg(paste0("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_6/", Sys.Date(),
+svg(paste0("figures/fig_6/", Sys.Date(),
            "_resistance_genes_fisher.svg"), width = 6.496063, height = 3.14)
 (p_tot <- ggpubr::ggarrange(spen_red, slyco_magenta,
                             ncol=2, nrow=1, common.legend = T, 
                             labels = c("A)", "B)")))
 dev.off()
 
-ggsave("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_6/resistance_genes_fisher_test.png", 
+ggsave("figures/fig_6/resistance_genes_fisher_test.png", 
        p_tot, width = 16.5, height = 8, units = "cm", dpi = 900,
        bg="white")

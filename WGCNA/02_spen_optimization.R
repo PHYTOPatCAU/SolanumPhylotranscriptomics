@@ -1,22 +1,15 @@
+# QDR RNAseq Solanum species
+# WGCNA forspen Optimization 
+# Severin Einspanier
 # module load R/4.3.1 gcc/12.3.0
-# This is a first test-script to run WGCNA on the nesh. 
-# Solanum pennellii 
-
 rm(list=ls())
 library(tidyverse)
 library(WGCNA)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
+allowWGCNAThreads(n=30)
 options(stringsAsFactors = FALSE)
-datExpr <- read.csv("DeSeq/data/norm_counts_all_rlog.csv")
 
-# take /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spen_curated_proteome_OG_pannzer_dedub_ids.txt
-# remove '>'
-# remove 'GeneExt~'
-# change 't.' to 'g.' 
-# remove '.p1-9'
-
-ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spen_curated_proteome_OG_pannzer_dedub_ids.txt",
+ids <- read.delim("PROTEOME/spen_curated_proteome_OG_pannzer_dedub_ids.txt",
     header=F) %>%
     mutate(gene=gsub(">", "", V1)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
@@ -35,13 +28,7 @@ datExpr <- read.csv("DeSeq/data/norm_counts_all_rlog.csv") %>%
   select(!species & !source) %>% 
   pivot_wider(names_from = Geneid, values_from = normalized_count) %>%
   column_to_rownames("sample")
-# ~ 16.577 genes left 
-datTraits <- read.csv2("DeSeq/data/sample_infos.csv") %>% 
-  filter(species=="spen") %>% 
-  column_to_rownames("X") %>% 
-  select(genotype, infection, species_short, lsmean.LDT.)
 
-# Get Outliers
 
 sampleTree = hclust(dist(datExpr), method = "average");
 # Plot the sample tree: Open a graphic output window of size 12 by 9 inches
@@ -166,7 +153,6 @@ find_mergeCutHeight <- function(datExpr, variable_values) {
                                detectCutHeight = 0.99,
                                numericLabels = TRUE,
                                saveTOMs = FALSE, 
-                               #saveTOMFileBase = "C:/Users/suaph281/Desktop/nesh_local/LDT_RNAseq/WGCNA/TOM_SE_OG_sft_4",
                                verbose = 1)
     results[[paste0("Variable_set_", merge_cut_height)]] <- result
     colors_list[[paste0("Variable_set_", merge_cut_height)]] <- labels2colors(result$colors)
@@ -217,47 +203,9 @@ replaceMissingAdjacencies = F,
                                detectCutHeight = 0.95,
                                numericLabels = TRUE,
                                saveTOMs = TRUE, 
-                               saveTOMFileBase = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/TOM/TOM_filtered",
+                               saveTOMFileBase = "spen/TOM/TOM_filtered",
                                verbose = 3)
 
 colors=labels2colors(result$colors)
 
 
-# Plot final figure:
-
-png(file = "WGCNA/documentation/pub/spen_network_filtered.png", width = 2000, height = 2000, 
-    res=600);
-
-svg(file = "WGCNA/documentation/pub/spen_network_filtered.svg", width = 7, height = 5)
-
-# Plot the dendrogram and module colors
-plotDendroAndColors(result$dendrograms[[1]], 
-                      colors[result$blockGenes[[1]]], 
-                      c(""), 
-                      dendroLabels = FALSE, hang = 0.03,
-                      addGuide = F, guideHang = 0.05, 
-                    autoColorHeight = T,
-                    colorHeight = .2)
-
-dev.off()
-
-
-moduleColors=labels2colors(result$colors)
-#write.table(moduleColors, "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/TOM/module_colors_TOM_filtered.txt", 
- #   col.names = FALSE, row.names = TRUE, quote = FALSE, sep = "\t")
-
-# Extract module labels (numeric)
-module_labels <- result$colors
-head(module_labels)  # View first few labels
-
-# Convert numeric labels to colors
-module_colors <- labels2colors(module_labels)
-head(module_colors)  # View first few colors
-
-# Create a data frame linking gene IDs to module colors
-gene_module_df <- data.frame(
-  GeneID = colnames(datExpr),  # Replace with your gene IDs
-  ModuleColor = module_colors
-)
-head(gene_module_df)
-write.table(gene_module_df,"/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/TOM/module_colors_TOM_filtered_genids.txt")

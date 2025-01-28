@@ -1,18 +1,15 @@
+# QDR RNAseq Solanum species
+# WGCNA for S. chilense Optimization 
+# Severin Einspanier
 # module load R/4.3.1 gcc/12.3.0
-# This is a first test-script to run WGCNA on the nesh. 
+
 
 rm(list=ls())
 library(tidyverse)
 library(WGCNA)
 allowWGCNAThreads(n=30)
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
 options(stringsAsFactors = FALSE)
 
-# take /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spen_curated_proteome_OG_pannzer_dedub_ids.txt
-# remove '>'
-# remove 'GeneExt~'
-# change 't.' to 'g.' 
-# remove '.p1-9'
 
 ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/schil_curated_proteome_OG_pannzer_dedub_ids.txt",
     header=F) %>%
@@ -163,7 +160,6 @@ find_mergeCutHeight <- function(datExpr, variable_values) {
                                detectCutHeight = 0.99,
                                numericLabels = TRUE,
                                saveTOMs = FALSE, 
-                               #saveTOMFileBase = "C:/Users/suaph281/Desktop/nesh_local/LDT_RNAseq/WGCNA/TOM_SE_OG_sft_4",
                                verbose = 1)
     results[[paste0("Variable_set_", merge_cut_height)]] <- result
     colors_list[[paste0("Variable_set_", merge_cut_height)]] <- labels2colors(result$colors)
@@ -175,7 +171,6 @@ find_mergeCutHeight <- function(datExpr, variable_values) {
 
 # Example usage
 variable_values <- c(0.2 , 0.25, 0.3, 0.4)
-#datExpr <- read.csv("path_to_your_data.csv")  # Replace with your actual data
 results <- find_mergeCutHeight(datExpr, variable_values)
 
 results_col<- results$colors_list

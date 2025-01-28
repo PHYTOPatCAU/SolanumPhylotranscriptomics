@@ -7,7 +7,7 @@ rm(list=ls())
 library(tidyverse)
 library(WGCNA)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
+setwd("")
 options(stringsAsFactors = FALSE)
 datExpr <- read.csv("OGs/data/orthogroup_expression_data_rlog_all_species.csv")
 
@@ -37,35 +37,14 @@ shabro_sclero <- datExpr[rownames(datExpr) %in% datTraits$X[datTraits$species_sh
 spimp_mock <- datExpr[rownames(datExpr) %in% datTraits$X[datTraits$species_short == 5 & datTraits$treatment == "mock"],]%>% as.matrix() 
 spimp_sclero <- datExpr[rownames(datExpr) %in% datTraits$X[datTraits$species_short == 5 & datTraits$treatment == "sclero"],]%>% as.matrix() 
 
-#bad_genes <- unique(c(
-#  colnames(spen_mock[!goodGenes((spen_mock)),]),
-#  colnames(spen_sclero[!goodGenes((spen_sclero)), ]),
-#  colnames(schil_mock[!goodGenes((schil_mock)), ]),
-#  colnames(schil_sclero[!goodGenes((schil_sclero)), ]),
-#  colnames(slyco_mock[!goodGenes((slyco_mock)), ]),
-#  colnames(slyco_sclero[!goodGenes((slyco_sclero)), ]),
-#  colnames(shabro_mock[!goodGenes((shabro_mock)), ]),
-#  colnames(shabro_sclero[!goodGenes((shabro_sclero)), ]),
-#  colnames(spimp_mock[!goodGenes((spimp_mock)), ]),
-#  colnames(spimp_sclero[!goodGenes((spimp_sclero)), ])
-#))
+
 bad_genes=""
 
 # Filter the input matrix and subsets
 input_in <- datExpr %>% as.matrix()
-#input_in <- datExpr[,!(colnames(datExpr) %in% bad_genes) ] %>% as.matrix() 
-#spen_mock_in <- spen_mock[!(colnames(spen_mock) %in% bad_genes), ] %>% as.matrix()
-#spen_sclero_in <- spen_sclero[!(colnames(spen_sclero) %in% bad_genes), ] %>% as.matrix()
-#schil_mock_in <- schil_mock[!(colnames(schil_mock) %in% bad_genes), ] %>% as.matrix()
-#schil_sclero_in <- schil_sclero[!(colnames(schil_sclero) %in% bad_genes), ] %>% as.matrix()
-#slyco_mock_in <- slyco_mock[!(colnames(slyco_mock) %in% bad_genes), ] %>% as.matrix()
-#slyco_sclero_in <- slyco_sclero[!(colnames(slyco_sclero) %in% bad_genes), ] %>% as.matrix()
-#shabro_mock_in <- shabro_mock[!(colnames(shabro_mock) %in% bad_genes), ] %>% as.matrix()
-#shabro_sclero_in <- shabro_sclero[!(colnames(shabro_sclero) %in% bad_genes), ] %>% as.matrix()
-#spimp_mock_in <- spimp_mock[!(colnames(spimp_mock) %in% bad_genes), ] %>% as.matrix()
-#spimp_sclero_in <- spimp_sclero[!(colnames(spimp_sclero) %in% bad_genes), ] %>% as.matrix()
 
-modules <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/TOM/TOM_sft_9_ds0_mch35_moduleColors_genid.txt", 
+
+modules <- read.table("data/WGCNA/OG/TOM/TOM_sft_9_ds0_mch35_moduleColors_genid.txt", 
     sep=" ", row.names=NULL) %>%
     column_to_rownames("GeneID")
 

@@ -1,12 +1,13 @@
-# OG Optimization 
-
-# This is the script to define networks for OGs on the nesh. 
-
+# QDR RNAseq Solanum species
+# WGCNA for OGs Optimization 
+# Severin Einspanier
+# This is the script to define networks for OGs 
+# may take a long time to finish. 
+#
 rm(list=ls())
 library(tidyverse)
 library(WGCNA)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
 options(stringsAsFactors = FALSE)
 datExpr <- read.csv("OGs/data/orthogroup_expression_data_rlog_all_species.csv")
 
@@ -145,7 +146,6 @@ find_mergeCutHeight <- function(datExpr, variable_values) {
                                detectCutHeight = 0.99,
                                numericLabels = TRUE,
                                saveTOMs = FALSE, 
-                               #saveTOMFileBase = "C:/Users/suaph281/Desktop/nesh_local/LDT_RNAseq/WGCNA/TOM_SE_OG_sft_4",
                                verbose = 1)
     results[[paste0("Variable_set_", merge_cut_height)]] <- result
     colors_list[[paste0("Variable_set_", merge_cut_height)]] <- labels2colors(result$colors)
@@ -193,13 +193,13 @@ result <- blockwiseModules(datExpr, checkMissingData = FALSE, replaceMissingAdja
                            detectCutHeight = 0.95,
                            numericLabels = TRUE,
                            saveTOMs = F, 
-                           saveTOMFileBase = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/TOM_sft_9_ds0_cm3",
+                           saveTOMFileBase = "",
                            verbose = 2)
 
 # Get the module colors
 module_colors <- labels2colors(result$colors)
 
-write.table(module_colors, "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/OG/TOM_sft_9_ds0_mch35_moduleColors.txt", 
+write.table(module_colors, "RNAseq_work/data/WGCNA/OG/TOM_sft_9_ds0_mch35_moduleColors.txt", 
 col.names = FALSE, row.names = TRUE, quote = FALSE, sep = "\t")
 
 
@@ -216,7 +216,4 @@ plotDendroAndColors(result$dendrograms[[1]],
                     colorHeight = .15)
 
 dev.off()
-
-# Correlating modules with traits
-
 

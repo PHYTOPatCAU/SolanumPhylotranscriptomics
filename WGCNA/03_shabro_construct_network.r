@@ -1,16 +1,16 @@
-# S. habrochaites
-# Following WGCNA-optimization, this is the script for performing network analysis on the S. habrochaites RNAseq data
-# New Networksettings as of 2025_01_10
+# QDR RNAseq Solanum species
+# Construct final network for S. habrochaites
+# also filter network for Cytoscape
+# Define Hub genes
 # Severin Einspanier
 
 rm(list=ls())
 library(tidyverse)
 library(WGCNA)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
+setwd("")
 options(stringsAsFactors = FALSE)
-ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/shabro_curated_proteome_OG_pannzer_dedub_ids.txt",
-    header=F) %>%
+ids <- read.delim("shabro_curated_proteome_OG_pannzer_dedub_ids.txt", header=F) %>%
     mutate(gene=gsub(">", "", V1)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA:", "", gene))%>%  
@@ -19,7 +19,6 @@ ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/shab
     mutate(gene=gsub("t\\.plus", "g.plus", gene)) %>% 
     mutate(gene=gsub("\\.[1-9].*|\\.p[1-9].*", "",gene))%>%
     dplyr::select(gene)
-
 
 datExpr <- read.csv("DeSeq/data/norm_counts_all_rlog.csv")%>%
   dplyr::filter(species=="S. habrochaites"& Geneid %in% ids$gene) %>% 
@@ -31,7 +30,6 @@ gsg = goodSamplesGenes(datExpr, verbose = 3)
 gsg$allOK
 
 # get network 
-
 
 allowWGCNAThreads(n=30)
 
@@ -48,7 +46,7 @@ result <- blockwiseModules(datExpr, checkMissingData = FALSE, replaceMissingAdja
                                detectCutHeight = 0.99,
                                numericLabels = TRUE,
                                saveTOMs = T, 
-                               saveTOMFileBase = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabr/TOM/TOM_final",
+                               saveTOMFileBase = "shabr/TOM/TOM_final",
                                verbose = 3)
 
 colors=labels2colors(result$colors)
@@ -89,20 +87,17 @@ gene_module_df <- data.frame(
   ModuleColor = module_colors
 )
 head(gene_module_df)
-write.table(gene_module_df,"/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabr/TOM/TOMfinal_module_colors_geneids.txt")
+write.table(gene_module_df,"shabr/TOM/TOMfinal_module_colors_geneids.txt")
 
 stop("stop here")
 
 # Export to Cytoscape:
-load("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabr/TOM/TOM_final-block.1.RData")
-moduleColors = read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/TOM/TOMfinal_module_colors_geneids.txt", 
-sep=" ", row.names=1, header = T)
+load("shabr/TOM/TOM_final-block.1.RData")
+moduleColors = read.table("shabro/TOM/TOMfinal_module_colors_geneids.txt", sep=" ", row.names=1, header = T)
 moduleColors  = as.character(moduleColors$ModuleColor)
 head(moduleColors)
 
-
 # Export to Cytoscape
-
 
 out_network <- exportNetworkToCytoscape(
   TOM, 
@@ -135,8 +130,8 @@ top_1M_edges <- get_top_edges(out_network$edgeData, 1000000)
 # Export networks
 out_network_threshold_1k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_1k_edge_", Sys.Date(), "_filtered.tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_1k_node_", Sys.Date(), "_filtered.tsv"),
+  edgeFile = paste0("shabro/CYTOSCAPE/TOM_1k_edge_", Sys.Date(), "_filtered.tsv"),
+  nodeFile = paste0("shabro/CYTOSCAPE/TOM_1k_node_", Sys.Date(), "_filtered.tsv"),
   weighted = TRUE,
   threshold = top_1k_edges$weight,
   nodeNames = names(datExpr),
@@ -147,8 +142,8 @@ out_network_threshold_1k <- exportNetworkToCytoscape(
 
 out_network_threshold_10k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_10k_edge_", Sys.Date(), "_filtered.tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_10k_node_", Sys.Date(), "_filtered.tsv"),
+  edgeFile = paste0("shabro/CYTOSCAPE/TOM_10k_edge_", Sys.Date(), "_filtered.tsv"),
+  nodeFile = paste0("shabro/CYTOSCAPE/TOM_10k_node_", Sys.Date(), "_filtered.tsv"),
   weighted = TRUE,
   threshold = top_10k_edges$weight,
   nodeNames = names(datExpr),
@@ -159,8 +154,8 @@ out_network_threshold_10k <- exportNetworkToCytoscape(
 
 out_network_threshold_100k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_100k_edge_", Sys.Date(), "_filtered.tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_100k_node_", Sys.Date(), "_filtered.tsv"),
+  edgeFile = paste0("shabro/CYTOSCAPE/TOM_100k_edge_", Sys.Date(), "_filtered.tsv"),
+  nodeFile = paste0("shabro/CYTOSCAPE/TOM_100k_node_", Sys.Date(), "_filtered.tsv"),
   weighted = TRUE,
   threshold = top_100k_edges$weight,
   nodeNames = names(datExpr),
@@ -171,8 +166,8 @@ out_network_threshold_100k <- exportNetworkToCytoscape(
 
 out_network_threshold_1M <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_1M_edge_", Sys.Date(), "_filtered.tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_1M_node_", Sys.Date(), "_filtered.tsv"),
+  edgeFile = paste0("shabro/CYTOSCAPE/TOM_1M_edge_", Sys.Date(), "_filtered.tsv"),
+  nodeFile = paste0("shabro/CYTOSCAPE/TOM_1M_node_", Sys.Date(), "_filtered.tsv"),
   weighted = TRUE,
   threshold = top_1M_edges$weight,
   nodeNames = names(datExpr),
@@ -183,8 +178,8 @@ out_network_threshold_1M <- exportNetworkToCytoscape(
 
 exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE//TOM_full_edge_", Sys.Date(), "_filtered.tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_full_node_", Sys.Date(), "_filtered.tsv"),
+   edgeFile = paste0("shabro/CYTOSCAPE//TOM_full_edge_", Sys.Date(), "_filtered.tsv"),
+   nodeFile = paste0("shabro/CYTOSCAPE/TOM_full_node_", Sys.Date(), "_filtered.tsv"),
    weighted = TRUE,
    nodeNames = names(datExpr),
    threshold =0,
@@ -223,15 +218,14 @@ brkpnt_fun <- function(x, y, output_file = "breakpoint_plot.png") {
   ggsave(output_file, plot = p)
 }
 
-
 breakpont <- brkpnt_fun(out_network$edgeData$weight,5,paste0("WGCNA/documentation/pics/shabro/filtered_wgcna/", Sys.Date(), "_shabro_net_edges_filtered.tsv.png"))
 
 # I'll select 0.0495303146022321
 
 out_network_threshold <- exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_INFL_filtered_edge_", Sys.Date(), "_filtered.tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_INFL_filtered_node_", Sys.Date(), "_filtered.tsv"),
+   edgeFile = paste0("shabro/CYTOSCAPE/TOM_INFL_filtered_edge_", Sys.Date(), "_filtered.tsv"),
+   nodeFile = paste0("shabro/CYTOSCAPE/TOM_INFL_filtered_node_", Sys.Date(), "_filtered.tsv"),
    weighted = TRUE,
    threshold = 0.0495303146022321,
    nodeNames = names(datExpr),
@@ -242,10 +236,9 @@ out_network_threshold <- exportNetworkToCytoscape(
 
 # Get Hub genes 
 
-net_edges <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE/TOM_INFL_filtered_edge_2025-01-10_filtered.tsv", header=T)
+net_edges <- read.table("shabro/CYTOSCAPE/TOM_INFL_filtered_edge_2025-01-10_filtered.tsv", header=T)
 
-net_nodes <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/CYTOSCAPE//TOM_INFL_filtered_node_2025-01-10_filtered.tsv", header=T, sep = "\t") 
-
+net_nodes <- read.table("shabro/CYTOSCAPE//TOM_INFL_filtered_node_2025-01-10_filtered.tsv", header=T, sep = "\t") 
 
 module_df <- net_nodes %>% 
   dplyr::select(nodeName, nodeAttr.nodesPresent...) %>%
@@ -331,7 +324,6 @@ process_module <- function(module) {
 combined_results <- unique(module_df$colors) %>%
   map_dfr(process_module)
 
-
 # Plot the results
 png(file = "WGCNA/documentation/pics/shabro/filtered_wgcna/hub_genes_new.png", width = 10000, height = 6000, 
     res=600);
@@ -355,8 +347,6 @@ combined_results$hub <- ifelse(combined_results$module == "salmon" & as.numeric(
 combined_results$hub <- ifelse(combined_results$module == "purple" & as.numeric(combined_results$position) >= 108, "hub", combined_results$hub)
 combined_results$hub <- ifelse(combined_results$module == "magenta" & as.numeric(combined_results$position) >= 150, "hub", combined_results$hub)
 
-
-
 png(file = "WGCNA/documentation/pics/shabro/filtered_wgcna/hub_genes_new_edited.png", width = 10000, height = 6000, 
     res=600);
 
@@ -370,5 +360,4 @@ png(file = "WGCNA/documentation/pics/shabro/filtered_wgcna/hub_genes_new_edited.
 
 dev.off()
 
-write.csv( combined_results,"/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/shabro/HUB/2025_01_10_shabro_hub.csv")
-
+write.csv(combined_results, "shabro/HUB/2025_01_10_shabro_hub.csv")

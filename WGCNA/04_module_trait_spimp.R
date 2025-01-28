@@ -1,15 +1,19 @@
-# Module correlations 
-# but with a more complex model
+# Module Trait correlations 
+# using a linear model with scaled eigengenes
+# FDR correction applied to p-values
 # Severin Einspanier
-# as of 2024_11_29
+# as of 2024_12_09
 # S. pimpinellifolium
+
+
+# FDR, scaling of ME, partial R²
 rm(list=ls())
 pacman::p_load(WGCNA, lme4, tidyverse, pheatmap, car, effectsize)
 
 options(stringsAsFactors = FALSE)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
-ids <- read.delim("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/PROTEOME/spimp_curated_proteome_OG_pannzer_dedub_ids.txt",
+ids <- read.delim("PROTEOME/spimp_curated_proteome_OG_pannzer_dedub_ids.txt",
                   header=FALSE) %>%
   mutate(gene=gsub(">", "", V1),
          gene=gsub("GeneExt~|mRNA_", "", gene),
@@ -31,7 +35,7 @@ datTraits <- read.csv2("DeSeq/data/sample_infos.csv") %>%
   column_to_rownames("X") %>% 
   dplyr::select(infection, genotype, rep)
 
-moduleColors <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/spimp/TOM_final_moduleColors_genids.txt", 
+moduleColors <- read.delim("WGCNA/spimp/TOM_final_moduleColors_genids.txt", 
                            sep=" ", header=T)
 
 # Define numbers of genes and samples

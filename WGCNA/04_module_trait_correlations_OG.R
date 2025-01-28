@@ -9,7 +9,7 @@ rm(list=ls())
 pacman::p_load(tidyverse, WGCNA, reshape2, pheatmap)
 
 options(stringsAsFactors = FALSE)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
 # --- Data Loading and Preparation ---
 datExpr <- read.csv("OGs/data/orthogroup_expression_data_rlog_all_species.csv", header=TRUE) %>% 
@@ -36,7 +36,7 @@ datTraits$rank <- relevel(factor(datTraits$rank, levels = as.character(1:10)), r
 datTraits$rep <- as.factor(datTraits$rep)
 datTraits$infection <- relevel(datTraits$infection, ref="0")
 
-moduleColors <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/OGs/TOM_sft_9_ds0_mch35_moduleColors_genid.txt", 
+moduleColors <- read.delim("OGs/TOM_sft_9_ds0_mch35_moduleColors_genid.txt", 
                            header=TRUE, sep=" ")
 
 # Calculate module eigengenes
@@ -145,8 +145,7 @@ colnames(text_data)=c("Infected", "Rank1", "Rank2", "Rank3", "Rank4", "Rank5", "
 # Generate heatmap with Padj and Estimate
 png(paste0("WGCNA/documentation/pics/OG/", Sys.Date(), "_heatmap_module_trait_correlation_scaled_padj_estimate.png"),     
     width = 15, height = 8, units = "cm", res = 900)
-#svg(paste0("C://Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_5/", Sys.Date(), "_heatmap_module_trait_correlation_scaled_padj_estimate.svg"),
- #   width = 15, height = 8)
+
 pheatmap(
   as.matrix(heatmap_data),
   legend = F,

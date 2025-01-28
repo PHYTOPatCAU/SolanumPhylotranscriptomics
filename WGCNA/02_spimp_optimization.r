@@ -1,14 +1,17 @@
-# This is the script to define networks for spimp on the nesh. 
+# QDR RNAseq Solanum species
+# WGCNA for S. pimpinellifolium
+# Severin Einspanier
+# 2024_09
 
 rm(list=ls())
 library(tidyverse)
 library(WGCNA)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
 options(stringsAsFactors = FALSE)
 
 allowWGCNAThreads(n=30)
-ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spimp_curated_proteome_OG_pannzer_dedub_ids.txt",
+
+ids <- read.delim("PROTEOME/spimp_curated_proteome_OG_pannzer_dedub_ids.txt",
     header=F) %>%
     mutate(gene=gsub(">", "", V1)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
@@ -108,25 +111,23 @@ findDeepSplit <- function(datExpr, deepSplit_values) {
 }
 
 # Example usage
-# deepSplit_values <- c(0, 1, 2, 3, 4)
-# results <- findDeepSplit(datExpr, deepSplit_values)
+ deepSplit_values <- c(0, 1, 2, 3, 4)
+ results <- findDeepSplit(datExpr, deepSplit_values)
+ results_col <- results$colors_list
+ results_dend <- results$results
 
-# results_col <- results$colors_list
-# results_dend <- results$results
-
-# # Plot the dendrogram and module colors for the first combination
-# first_key <- names(results_dend)[1]
-# png(file = "WGCNA/documentation/pics/spimp/wgcna_filtered/DeepSplit_sft_9.png", width = 10000, height = 8000, 
-#     res=600);
-# plotDendroAndColors(results_dend[[first_key]]$dendrograms[[1]], 
-#                     do.call(cbind, results_col), 
-#                     c(names(results_col)), 
-#                     dendroLabels = FALSE, hang = 0.03,
-#                     addGuide = TRUE, guideHang = 0.05, 
-#                     autoColorHeight = FALSE,
-#                     colorHeight = 0.65)
-
-# dev.off()
+ # Plot the dendrogram and module colors for the first combination
+ first_key <- names(results_dend)[1]
+ png(file = "WGCNA/documentation/pics/spimp/wgcna_filtered/DeepSplit_sft_9.png", width = 10000, height = 8000, 
+     res=600);
+ plotDendroAndColors(results_dend[[first_key]]$dendrograms[[1]], 
+                     do.call(cbind, results_col), 
+                     c(names(results_col)), 
+                     dendroLabels = FALSE, hang = 0.03,
+                     addGuide = TRUE, guideHang = 0.05, 
+                     autoColorHeight = FALSE,
+                     colorHeight = 0.65)
+ dev.off()
 
 
 
@@ -152,7 +153,6 @@ find_mergeCutHeight <- function(datExpr, variable_values) {
                                detectCutHeight = 0.97,
                                numericLabels = TRUE,
                                saveTOMs = FALSE, 
-                               #saveTOMFileBase = "C:/Users/suaph281/Desktop/nesh_local/LDT_RNAseq/WGCNA/TOM_SE_OG_sft_4",
                                verbose = 1)
     results[[paste0("Variable_set_", merge_cut_height)]] <- result
     colors_list[[paste0("Variable_set_", merge_cut_height)]] <- labels2colors(result$colors)

@@ -1,11 +1,17 @@
-rm(list=ls())
+# Module Trait correlations 
+# using a linear model with scaled eigengenes
+# FDR correction applied to p-values
+# Severin Einspanier
+# as of 2024_12_09
+# Solanum lycopersicoides
+# FDR, scaling of ME, partial R²rm(list=ls())
 pacman::p_load(WGCNA, lme4, tidyverse, pheatmap, car, effectsize)
 options(stringsAsFactors = FALSE)
 
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
 # Read gene IDs
-ids <- read.delim("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/PROTEOME/slyco_curated_proteome_OG_pannzer_dedub_ids.txt",
+ids <- read.delim("PROTEOME/slyco_curated_proteome_OG_pannzer_dedub_ids.txt",
                   header=FALSE) %>%
   mutate(gene = gsub(">", "", V1),
          gene = gsub("GeneExt~|mRNA_", "", gene),

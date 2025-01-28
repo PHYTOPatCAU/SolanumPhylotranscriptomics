@@ -1,24 +1,18 @@
-# export networks 
-# get hub genes
-# spen 
-# 2024_12_17 
-# 
+# QDR RNAseq Solanum species
+# Construct final network for S. pennellii
+# also filter network for Cytoscape
+# Define Hub genes
+# Severin Einspanier
+
 rm(list=ls())
 library(tidyverse)
 library(WGCNA)
 library(segmented)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
+setwd("")
 options(stringsAsFactors = FALSE)
 
-# take /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spen_curated_proteome_OG_pannzer_dedub_ids.txt
-# remove '>'
-# remove 'GeneExt~'
-# change 't.' to 'g.' 
-# remove '.p1-9'
-
-ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spen_curated_proteome_OG_pannzer_dedub_ids.txt",
-    header=F) %>%
+ids <- read.delim("spen_curated_proteome_OG_pannzer_dedub_ids.txt", header=F) %>%
     mutate(gene=gsub(">", "", V1)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA_", "", gene))%>%  
@@ -28,7 +22,6 @@ ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spen
     mutate(gene=gsub("\\.[1-9].*|\\.p[1-9].*", "",gene))%>%
     dplyr::select(gene)
 
-
 # filter the gene expression:
 
 datExpr <- read.csv("DeSeq/data/norm_counts_all_rlog.csv") %>%
@@ -37,14 +30,67 @@ datExpr <- read.csv("DeSeq/data/norm_counts_all_rlog.csv") %>%
   pivot_wider(names_from = Geneid, values_from = normalized_count) %>%
   column_to_rownames("sample")
 
+result <- blockwiseModules(datExpr, checkMissingData = T, 
+  replaceMissingAdjacencies = F, 
+                               maxBlockSize = ncol(datExpr), 
+                               networkType = "signed hybrid",
+                               power =9, 
+                               TOMType = "signed", 
+                               minModuleSize = 30,
+                               corType = "bicor", 
+                               reassignThreshold = 0.01, 
+                               mergeCutHeight = 0.2, 
+                               deepSplit = 1,
+                               detectCutHeight = 0.95,
+                               numericLabels = TRUE,
+                               saveTOMs = TRUE, 
+                               saveTOMFileBase = "spen/TOM/TOM_filtered",
+                               verbose = 3)
+  
+colors=labels2colors(result$colors)
+
+# Plot final figure:
+
+png(file = "WGCNA/documentation/pub/spen_network_filtered.png", width = 2000, height = 2000, 
+    res=600);
+
+svg(file = "WGCNA/documentation/pub/spen_network_filtered.svg", width = 7, height = 5)
+
+# Plot the dendrogram and module colors
+plotDendroAndColors(result$dendrograms[[1]], 
+                      colors[result$blockGenes[[1]]], 
+                      c(""), 
+                      dendroLabels = FALSE, hang = 0.03,
+                      addGuide = F, guideHang = 0.05, 
+                    autoColorHeight = T,
+                    colorHeight = .2)
+
+dev.off()
+
+moduleColors=labels2colors(result$colors)
+
+# Extract module labels (numeric)
+module_labels <- result$colors
+head(module_labels)  # View first few labels
+
+# Convert numeric labels to colors
+module_colors <- labels2colors(module_labels)
+head(module_colors)  # View first few colors
+
+# Create a data frame linking gene IDs to module colors
+gene_module_df <- data.frame(
+  GeneID = colnames(datExpr),  # Replace with your gene IDs
+  ModuleColor = module_colors
+)
+head(gene_module_df)
+write.table(gene_module_df,"spen/TOM/module_colors_TOM_filtered_genids.txt")
+
 # load TOM
 
-load("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/TOM/TOM_filtered-block.1.RData")
-moduleColors = read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/TOM/module_colors_TOM_filtered.txt", header = FALSE)
+load("spen/TOM/TOM_filtered-block.1.RData")
+moduleColors = read.table("spen/TOM/module_colors_TOM_filtered.txt", header = FALSE)
 moduleColors  = as.character(moduleColors$V2)
 head(moduleColors)
-
-
 
 # Export to Cytoscape
 
@@ -80,8 +126,8 @@ top_1M_edges <- get_top_edges(out_network$edgeData, 1000000)
 # Export networks
 out_network_threshold_1k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_1k_edge_", Sys.Date(), "_filtered.tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_1k_node_", Sys.Date(), "_filtered.tsv"),
+  edgeFile = paste0("spen/CYTOSCAPE/TOM_1k_edge_", Sys.Date(), "_filtered.tsv"),
+  nodeFile = paste0("spen/CYTOSCAPE/TOM_1k_node_", Sys.Date(), "_filtered.tsv"),
   weighted = TRUE,
   threshold = top_1k_edges$weight,
   nodeNames = names(datExpr),
@@ -92,8 +138,8 @@ out_network_threshold_1k <- exportNetworkToCytoscape(
 
 out_network_threshold_10k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_10k_edge_", Sys.Date(), "_filtered.tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_10k_node_", Sys.Date(), "_filtered.tsv"),
+  edgeFile = paste0("spen/CYTOSCAPE/TOM_10k_edge_", Sys.Date(), "_filtered.tsv"),
+  nodeFile = paste0("spen/CYTOSCAPE/TOM_10k_node_", Sys.Date(), "_filtered.tsv"),
   weighted = TRUE,
   threshold = top_10k_edges$weight,
   nodeNames = names(datExpr),
@@ -104,8 +150,8 @@ out_network_threshold_10k <- exportNetworkToCytoscape(
 
 out_network_threshold_100k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_100k_edge_", Sys.Date(), "_filtered.tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_100k_node_", Sys.Date(), "_filtered.tsv"),
+  edgeFile = paste0("spen/CYTOSCAPE/TOM_100k_edge_", Sys.Date(), "_filtered.tsv"),
+  nodeFile = paste0("spen/CYTOSCAPE/TOM_100k_node_", Sys.Date(), "_filtered.tsv"),
   weighted = TRUE,
   threshold = top_100k_edges$weight,
   nodeNames = names(datExpr),
@@ -116,8 +162,8 @@ out_network_threshold_100k <- exportNetworkToCytoscape(
 
 out_network_threshold_1M <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_1M_edge_", Sys.Date(), "_filtered.tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_1M_node_", Sys.Date(), "_filtered.tsv"),
+  edgeFile = paste0("spen/CYTOSCAPE/TOM_1M_edge_", Sys.Date(), "_filtered.tsv"),
+  nodeFile = paste0("spen/CYTOSCAPE/TOM_1M_node_", Sys.Date(), "_filtered.tsv"),
   weighted = TRUE,
   threshold = top_1M_edges$weight,
   nodeNames = names(datExpr),
@@ -128,8 +174,8 @@ out_network_threshold_1M <- exportNetworkToCytoscape(
 
 exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE//TOM_full_edge_", Sys.Date(), "_filtered.tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_full_node_", Sys.Date(), "_filtered.tsv"),
+   edgeFile = paste0("spen/CYTOSCAPE//TOM_full_edge_", Sys.Date(), "_filtered.tsv"),
+   nodeFile = paste0("spen/CYTOSCAPE/TOM_full_node_", Sys.Date(), "_filtered.tsv"),
    weighted = TRUE,
    nodeNames = names(datExpr),
    threshold =0,
@@ -137,7 +183,6 @@ exportNetworkToCytoscape(
    nodeAttr = moduleColors,
    includeColNames = TRUE)
    
-
 brkpnt_fun <- function(x, y, output_file = "breakpoint_plot.png") {
   if (length(x) > 10000) {
     set.seed(54321)
@@ -168,15 +213,14 @@ brkpnt_fun <- function(x, y, output_file = "breakpoint_plot.png") {
   ggsave(output_file, plot = p)
 }
 
-
 breakpont <- brkpnt_fun(out_network$edgeData$weight,5,paste0("WGCNA/documentation/pics/spen/", Sys.Date(), "_spen_net_edges_filtered.tsv.png"))
 
 # I'll select 0.0403409541741956
 
 out_network_threshold <- exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_INFL_filtered_edge_", Sys.Date(), "_filtered.tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE/TOM_INFL_filtered_node_", Sys.Date(), "_filtered.tsv"),
+   edgeFile = paste0("spen/CYTOSCAPE/TOM_INFL_filtered_edge_", Sys.Date(), "_filtered.tsv"),
+   nodeFile = paste0("spen/CYTOSCAPE/TOM_INFL_filtered_node_", Sys.Date(), "_filtered.tsv"),
    weighted = TRUE,
    threshold = 0.0403409541741956,
    nodeNames = names(datExpr),
@@ -184,13 +228,11 @@ out_network_threshold <- exportNetworkToCytoscape(
    nodeAttr = moduleColors,
    includeColNames = TRUE)
 
-
 # Get Hub genes 
 
-net_edges <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE//TOM_INFL_filtered_edge_2024-12-17_filtered.tsv", header=T)
+net_edges <- read.table("spen/CYTOSCAPE//TOM_INFL_filtered_edge_2024-12-17_filtered.tsv", header=T)
 
-net_nodes <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/CYTOSCAPE//TOM_INFL_filtered_node_2024-12-17_filtered.tsv", header=T, sep = "\t") 
-
+net_nodes <- read.table("spen/CYTOSCAPE//TOM_INFL_filtered_node_2024-12-17_filtered.tsv", header=T, sep = "\t") 
 
 module_df <- net_nodes %>% 
   dplyr::select(nodeName, nodeAttr.nodesPresent...) %>%
@@ -263,7 +305,7 @@ process_module <- function(module) {
   hub_col <- egnvctr_col %>%
     arrange(egnvctr) %>%
     dplyr::select(gene, egnvctr) %>%
-    rownames_to_column("position") %>%
+    rownames_to_column("position") %>% 
     mutate(hub = ifelse(as.numeric(rownames(.)) > brekpont, "hub", "non-hub"))
 
   # Add a module column to the data frame
@@ -272,14 +314,11 @@ process_module <- function(module) {
   return(hub_col)
 }
 
-
 # Get unique modules
 modules <- unique(module_df$colors)
 
-
 combined_results <- modules %>%
   map_dfr(process_module)
-
 
 # Plot the results
 png(file = "WGCNA/documentation/pics/spen/filtered_wgcna/hub_genes_new.png", width = 10000, height = 6000, 
@@ -316,5 +355,4 @@ png(file = "WGCNA/documentation/pics/spen/filtered_wgcna/hub_genes_new_edited.pn
 
 dev.off()
 
-write.csv( combined_results,"/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spen/HUB/2025_01_08_spen_hub.csv")
-
+write.csv(combined_results,"spen/HUB/2025_01_08_spen_hub.csv")

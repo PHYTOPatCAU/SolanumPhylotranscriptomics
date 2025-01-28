@@ -1,16 +1,19 @@
-# 3. Get final network:
-# Solanum pimpinellifolium 
+# QDR RNAseq Solanum species
+# Construct final network for S. pimpinellifolium
+# also filter network for Cytoscape
+# Define Hub genes
+# Severin Einspanier
+
 rm(list=ls())
 library(tidyverse)
 library(segmented)
 library(WGCNA)
 
-setwd("/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/")
+setwd("")
 options(stringsAsFactors = FALSE)
 
 allowWGCNAThreads(n=30)
-ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spimp_curated_proteome_OG_pannzer_dedub_ids.txt",
-    header=F) %>%
+ids <- read.delim("spimp_curated_proteome_OG_pannzer_dedub_ids.txt", header=F) %>%
     mutate(gene=gsub(">", "", V1)) %>%
     mutate(gene=gsub("GeneExt~", "", gene))%>% 
     mutate(gene=gsub("mRNA:", "", gene))%>%  
@@ -19,7 +22,6 @@ ids <- read.delim("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spim
     mutate(gene=gsub("t\\.plus", "g.plus", gene)) %>% 
     mutate(gene=gsub("\\.[1-9].*|\\.p[1-9].*", "",gene))%>%
     dplyr::select(gene)
-
 
 datExpr <- read.csv("DeSeq/data/norm_counts_all_rlog.csv")%>%
   dplyr::filter(species=="S. pimpinellifolium"& Geneid %in% ids$gene) %>% 
@@ -44,7 +46,7 @@ result <- blockwiseModules(datExpr, checkMissingData = FALSE, replaceMissingAdja
                            detectCutHeight = 0.97,
                            numericLabels = TRUE,
                            saveTOMs = T, 
-                           saveTOMFileBase = "/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/TOM_final",
+                           saveTOMFileBase = "spimp/TOM_final",
                            verbose = 3)
 
 # Get the module colors
@@ -64,7 +66,7 @@ gene_module_df <- data.frame(
   ModuleColor = module_colors
 )
 head(gene_module_df)
-write.table(gene_module_df,"/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/TOM_final_moduleColors_genids.txt")
+write.table(gene_module_df,"spimp/TOM_final_moduleColors_genids.txt")
 
 colors=labels2colors(result$colors)
 
@@ -92,16 +94,12 @@ dev.off()
 
 stop("enough, I just needed updated colors")
 
-
-
 # Load for rest. 
 
-load("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/TOM_final-block.1.RData")
-moduleColors = read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/TOM_final_moduleColors_genids.txt", 
-  sep=" ", header = T, row.names = 1)
+load("spimp/TOM_final-block.1.RData")
+moduleColors = read.table("spimp/TOM_final_moduleColors_genids.txt", sep=" ", header = T, row.names = 1)
 moduleColors  = as.character(moduleColors$ModuleColor)
 head(moduleColors)
-
 
 # Export to Cytoscape
 
@@ -135,8 +133,8 @@ top_1M_edges <- get_top_edges(out_network$edgeData, 1000000)
 # Export networks
 out_network_threshold_1k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_1k_edge_", Sys.Date(), ".tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_1k_node_", Sys.Date(), ".tsv"),
+  edgeFile = paste0("spimp/CYTOSCAPE/TOM_1k_edge_", Sys.Date(), ".tsv"),
+  nodeFile = paste0("spimp/CYTOSCAPE/TOM_1k_node_", Sys.Date(), ".tsv"),
   weighted = TRUE,
   threshold = top_1k_edges$weight,
   nodeNames = names(datExpr),
@@ -147,8 +145,8 @@ out_network_threshold_1k <- exportNetworkToCytoscape(
 
 out_network_threshold_10k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_10k_edge_", Sys.Date(), ".tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_10k_node_", Sys.Date(), ".tsv"),
+  edgeFile = paste0("spimp/CYTOSCAPE/TOM_10k_edge_", Sys.Date(), ".tsv"),
+  nodeFile = paste0("spimp/CYTOSCAPE/TOM_10k_node_", Sys.Date(), ".tsv"),
   weighted = TRUE,
   threshold = top_10k_edges$weight,
   nodeNames = names(datExpr),
@@ -159,8 +157,8 @@ out_network_threshold_10k <- exportNetworkToCytoscape(
 
 out_network_threshold_100k <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_100k_edge_", Sys.Date(), ".tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_100k_node_", Sys.Date(), ".tsv"),
+  edgeFile = paste0("spimp/CYTOSCAPE/TOM_100k_edge_", Sys.Date(), ".tsv"),
+  nodeFile = paste0("spimp/CYTOSCAPE/TOM_100k_node_", Sys.Date(), ".tsv"),
   weighted = TRUE,
   threshold = top_100k_edges$weight,
   nodeNames = names(datExpr),
@@ -171,8 +169,8 @@ out_network_threshold_100k <- exportNetworkToCytoscape(
 
 out_network_threshold_1M <- exportNetworkToCytoscape(
   TOM, 
-  edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_1M_edge_", Sys.Date(), ".tsv"),
-  nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_1M_node_", Sys.Date(), ".tsv"),
+  edgeFile = paste0("spimp/CYTOSCAPE/TOM_1M_edge_", Sys.Date(), ".tsv"),
+  nodeFile = paste0("spimp/CYTOSCAPE/TOM_1M_node_", Sys.Date(), ".tsv"),
   weighted = TRUE,
   threshold = top_1M_edges$weight,
   nodeNames = names(datExpr),
@@ -183,8 +181,8 @@ out_network_threshold_1M <- exportNetworkToCytoscape(
 
 exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE//TOM_full_edge_", Sys.Date(), ".tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_full_node_", Sys.Date(), ".tsv"),
+   edgeFile = paste0("spimp/CYTOSCAPE//TOM_full_edge_", Sys.Date(), ".tsv"),
+   nodeFile = paste0("spimp/CYTOSCAPE/TOM_full_node_", Sys.Date(), ".tsv"),
    weighted = TRUE,
    nodeNames = names(datExpr),
    threshold =0,
@@ -224,14 +222,13 @@ brkpnt_fun <- function(x, y, output_file = "breakpoint_plot.png") {
   ggsave(output_file, plot = p)
 }
 
-
 breakpont <- brkpnt_fun(out_network$edgeData$weight,5,paste0("WGCNA/documentation/pics/spimp/", Sys.Date(), "_spimp_net_edges.png"))
 # I'll select 0.087821974777968
 
 out_network_threshold <- exportNetworkToCytoscape(
   TOM, 
-   edgeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_INFL_filtered_edge_", Sys.Date(), ".tsv"),
-   nodeFile = paste0("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_INFL_filtered_node_", Sys.Date(), ".tsv"),
+   edgeFile = paste0("spimp/CYTOSCAPE/TOM_INFL_filtered_edge_", Sys.Date(), ".tsv"),
+   nodeFile = paste0("spimp/CYTOSCAPE/TOM_INFL_filtered_node_", Sys.Date(), ".tsv"),
    weighted = TRUE,
    threshold = 0.087821974777968,
    nodeNames = names(datExpr),
@@ -239,13 +236,11 @@ out_network_threshold <- exportNetworkToCytoscape(
    nodeAttr = moduleColors,
    includeColNames = TRUE)
 
-
 # Get Hub genes 
 
-net_edges <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_INFL_filtered_edge_2025-01-11.tsv", header=T)
+net_edges <- read.table("spimp/CYTOSCAPE/TOM_INFL_filtered_edge_2025-01-11.tsv", header=T)
 
-net_nodes <- read.table("/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/CYTOSCAPE/TOM_INFL_filtered_node_2025-01-11.tsv", header=T, sep = "\t") 
-
+net_nodes <- read.table("spimp/CYTOSCAPE/TOM_INFL_filtered_node_2025-01-11.tsv", header=T, sep = "\t") 
 
 module_df <- net_nodes %>% 
   dplyr::select(nodeName, nodeAttr.nodesPresent...) %>%
@@ -298,7 +293,6 @@ brkpnt_fun <- function(x, y) {
   return(threshold)
 }
 
-
 process_module <- function(module) {
   # Filter for the current module
   net_col <- xtrxt_net(module)
@@ -328,11 +322,8 @@ process_module <- function(module) {
   return(hub_col)
 }
 
-
-
 combined_results <- unique(module_df$colors) %>%
   map_dfr(process_module)
-
 
 # Plot the results
 png(file = "WGCNA/documentation/pics/spimp/hub_genes_sft9_filter.png", width = 10000, height = 6000, 
@@ -348,7 +339,6 @@ png(file = "WGCNA/documentation/pics/spimp/hub_genes_sft9_filter.png", width = 1
 
 dev.off()
 
-
 # manual adjustment:
 
 combined_backup <- combined_results
@@ -357,7 +347,6 @@ combined_results$hub <- ifelse(combined_results$module == "pink" & as.numeric(co
 combined_results$hub <- ifelse(combined_results$module == "purple" & as.numeric(combined_results$position) >= 61, "hub", combined_results$hub)
 combined_results$hub <- ifelse(combined_results$module == "salmon" & as.numeric(combined_results$position) >= 27, "hub", combined_results$hub)
 combined_results$hub <- ifelse(combined_results$module == "red" & as.numeric(combined_results$position) >= 155, "hub", combined_results$hub)
-
 
 png(file = "WGCNA/documentation/pics/spimp/hub_genes_sft9_filter.png", width = 10000, height = 6000, 
     res=600);
@@ -372,7 +361,5 @@ png(file = "WGCNA/documentation/pics/spimp/hub_genes_sft9_filter.png", width = 1
 
 dev.off()
 
-
 # write list of genes
-write.csv(combined_results,"/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/WGCNA/spimp/HUB/2025_01_11_spimp_hub.csv")
-
+write.csv(combined_results,"spimp/HUB/2025_01_11_spimp_hub.csv")

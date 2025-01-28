@@ -1,14 +1,20 @@
-# Module correlations with standardized eigengenes and annotated Partial R² heatmap
-# 2024_11_29
+# Module Trait correlations 
+# using a linear model 
+# FDR correction applied to p-values
+# Severin Einspanier
+# as of 2024_12_09
+# Solanum chilense
+
+# FDR, scaling of ME, partial R²
 
 rm(list=ls())
 pacman::p_load(WGCNA, lme4, tidyverse, pheatmap, car, effectsize)
 
 options(stringsAsFactors = FALSE)
 
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
-ids <- read.delim("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/PROTEOME/schil_curated_proteome_OG_pannzer_dedub_ids.txt",
+ids <- read.delim("PROTEOME/schil_curated_proteome_OG_pannzer_dedub_ids.txt",
                   header=FALSE) %>%
   mutate(gene=gsub(">", "", V1),
          gene=gsub("GeneExt~|mRNA_", "", gene),
@@ -30,7 +36,7 @@ datTraits <- read.csv2("DeSeq/data/sample_infos.csv") %>%
   column_to_rownames("X") %>% 
   dplyr::select(infection, genotype)
 
-moduleColors <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/schil/moduleColorsTOM_ds2_mch25_genids.txt", 
+moduleColors <- read.delim("schil/moduleColorsTOM_ds2_mch25_genids.txt", 
                            header=T, row.names=1, sep=" ")
 
 

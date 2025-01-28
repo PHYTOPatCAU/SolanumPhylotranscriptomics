@@ -1,5 +1,5 @@
 # Module correlations 
-# but with a more complex model
+# but with a more linear model
 # Severin Einspanier
 # as of 2024_12_13
 # S. habrochaites
@@ -10,9 +10,9 @@ rm(list=ls())
 pacman::p_load(WGCNA, lme4, tidyverse, pheatmap, car, effectsize)
 
 options(stringsAsFactors = FALSE)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
-ids <- read.delim("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/PROTEOME/shabro_curated_proteome_OG_pannzer_dedub_ids.txt",
+ids <- read.delim("PROTEOME/shabro_curated_proteome_OG_pannzer_dedub_ids.txt",
                   header=FALSE) %>%
   mutate(gene=gsub(">", "", V1)) %>%
   mutate(gene=gsub("GeneExt~", "", gene))%>% 
@@ -35,7 +35,7 @@ datTraits <- read.csv2("DeSeq/data/sample_infos.csv") %>%
   column_to_rownames("X") %>% 
   dplyr::select(infection, genotype)
 
-moduleColors <- read.delim("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/WGCNA/shabro/TOMfinal_module_colors_geneids.txt", 
+moduleColors <- read.delim("shabro/TOMfinal_module_colors_geneids.txt", 
                            header=T, sep=" ") 
 
 # Define numbers of genes and samples

@@ -1,10 +1,18 @@
+# Module Trait correlations 
+# using a linear model with scaled eigengenes
+# FDR correction applied to p-values
+# Severin Einspanier
+# as of 2024_12_09
+
+
+# FDR, scaling of ME, partial R²
 # Adjusting the code to include the interaction term (infection*genotype) and remove MEgrey
 rm(list=ls())
 pacman::p_load(WGCNA, lme4, tidyverse, pheatmap, car, effectsize)
 options(stringsAsFactors = FALSE)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
-ids <- read.delim("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/PROTEOME/spen_curated_proteome_OG_pannzer_dedub_ids.txt",
+ids <- read.delim("PROTEOME/spen_curated_proteome_OG_pannzer_dedub_ids.txt",
                   header=FALSE) %>%
   mutate(gene=gsub(">", "", V1),
          gene=gsub("GeneExt~|mRNA_", "", gene),
