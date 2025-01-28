@@ -8,6 +8,11 @@
 #SBATCH --mem=200G                               # Memory per node (adjust as needed)
 #SBATCH --time=2:00:00                           # Maximum runtime (HH:MM:SS)
 
+# QDR RNAseq Solanum species
+# Perform Proteome-Filtering (to exclude spuriouse sequences) 
+# multiple-tier appraoch: compare with uniprot, ITAG4-orthology and last Pannzer2 hits
+# Severin Einspanier
+
 # Load necessary modules
 module load gcc12-env
 module load miniconda3
@@ -54,7 +59,7 @@ filter_sequences() {
 }
 
 # Base directory
-base_dir="/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME"
+base_dir="PROTEOME"
 
 # Species list
 species_list=("spimp" "schil" "shabro" "slyco" "spen")
@@ -81,15 +86,15 @@ for species in "${species_list[@]}"; do
 done
 
 # Copy ITAG4.1 proteins file
-cp /gxfs_work/cau/suaph281/RNAseq/references/itag4/ITAG4.1_proteins.fasta /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/ITAG4.1_proteins.fasta
+cp ITAG4.1_proteins.fasta PROTEOME/orthofinder/ITAG4.1_proteins.fasta
 
 # Activate orthofinder environment and run orthofinder
 conda activate orthofinder_env
-cd /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/
-orthofinder -f /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/proteome/ -t 32
+cd PROTEOME/orthofinder/
+orthofinder -f PROTEOME/orthofinder/proteome/ -t 32
 
 # Isolate orthologues
-cd /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/OrthoFinder/Results_Nov21/Orthologues/Orthologues_ITAG4.1_proteins
+cd OrthoFinder/Results_Nov21/Orthologues/Orthologues_ITAG4.1_proteins
 
 # Convert GeneExt~mRNA:SHch09g025890.1.p1 to GeneExt~mRNA_SHch09g025890.1.p1
 files=("ITAG4.1_proteins__v__spen.tsv" "ITAG4.1_proteins__v__spimp.tsv" "ITAG4.1_proteins__v__schil.tsv" "ITAG4.1_proteins__v__slyco.tsv")
@@ -109,8 +114,8 @@ for file in "${files[@]}"; do
     # sed 's/, /\n/g' "$extract_ids" | sed 's/_/:/g' > "$extract_ids_newline_chrtrs"
     touch "$extract_ids_newline_chrtrs"
     #rm "$extract_ids"
-    mv "$extract_ids_newline" /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/
-    mv "$extract_ids_newline_chrtrs" /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/
+    mv "$extract_ids_newline" PROTEOME/orthofinder/
+    mv "$extract_ids_newline_chrtrs" /PROTEOME/orthofinder/
 done
 
 # Process Shabro
@@ -119,11 +124,11 @@ cat ITAG4.1_proteins__v__shabro.tsv | cut -f 3 > ITAG4.1_proteins__v__shabro_ID.
 sed 's/, /\n/g' ITAG4.1_proteins__v__shabro_ID.txt > ITAG4.1_proteins__v__shabro_ID_newline.txt
 sed 's/, /\n/g' ITAG4.1_proteins__v__shabro_ID.txt | sed 's/_/:/g' > ITAG4.1_proteins__v__shabro_ID_newline_chrtrs.txt
 rm ITAG4.1_proteins__v__shabro_ID.txt
-mv "ITAG4.1_proteins__v__shabro_ID_newline.txt" /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/shabro/
-mv "ITAG4.1_proteins__v__shabro_ID_newline_chrtrs.txt" /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/shabro/
+mv "ITAG4.1_proteins__v__shabro_ID_newline.txt" PROTEOME/orthofinder/shabro/
+mv "ITAG4.1_proteins__v__shabro_ID_newline_chrtrs.txt" PROTEOME/orthofinder/shabro/
 
 # Move files to respective directories
-cd /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/orthofinder/
+cd PROTEOME/orthofinder/
 mv *_schil_ID_newline*.txt schil/
 mv *_slyco_ID_newline*.txt slyco/
 # mv *_shabro_ID_newline*.txt shabro/
@@ -131,7 +136,7 @@ mv *_spen_ID_newline*.txt spen/
 mv *_spimp_ID_newline*.txt spimp/
 
 # Quick seqkit for all species
-cd /gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/
+cd PROTEOME/
 
 # Add PANNZER step
 conda activate seqkit

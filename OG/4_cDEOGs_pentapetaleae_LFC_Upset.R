@@ -1,3 +1,4 @@
+# QDR RNAseq Solanum species
 # Are cDEOGs also DEGs in remaining pentapetaleae?
 # 2024_12_14 Severin Einspanier
 # Get cDEOG ID, are the gene-IDs also DEGs for the remaining species
@@ -5,50 +6,41 @@
 # if yes = 1, else = 0. Then upsetplot
 rm(list=ls())
 pacman::p_load(tidyverse)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+
+setwd("")
 cDEOGs_id <- read.csv("OGs/data/coreDEOGs_joined_pentapetals.csv", row.names = 1) %>% 
   select(Orthogroup) %>% 
   unique()
-# info: HOGs are npw introduced by orthofinder (hirachial orthogroups), but in the gene count, genes from a different
-# Gene.Tree.Parent.Clade are also included. so i accept, that OG_sequence_ids has more rows thant cDEOGs_id
-# load degs 
 
-og_sequence_ids <- read.csv("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/orthofinder/NOV_2024_ITAG_PANNZER/Phylogenetic_Hierarchical_Orthogroups/N0.tsv",  
+og_sequence_ids <- read.csv("Phylogenetic_Hierarchical_Orthogroups/N0.tsv",  
                               header=T, sep="\t", row.names=1, stringsAsFactors = F) %>% 
   #select(!Gene.Tree.Parent.Clade) %>% 
   filter(OG %in% cDEOGs_id$Orthogroup) %>% 
   unique() #%>% 
   
 
-# repeat for all species
-
-
-# now go through og_sequence_ids and check if the gene-IDs are DEGs in the remaining species
-# I will not select a pvalue. we are only interested in: are they expressed?
-# using a filter for baseMean > 10
-
-ath_degs <- read.csv2("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/Florent_data/RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Arabidopsis thaliana LFC FRT vs LNI.csv", 
+ath_degs <- read.csv2("RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Arabidopsis thaliana LFC FRT vs LNI.csv", 
                       header=T, sep=";") %>% 
   filter(baseMean > 10 )
 
-bv_degs <- read.csv("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/Florent_data/RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Beta vulgaris LFC FRT vs LNI.csv", 
+bv_degs <- read.csv("RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Beta vulgaris LFC FRT vs LNI.csv", 
                     header=T, sep=";")  %>% 
   filter(baseMean > 10 )
 
-ha_degs <- read.csv("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/Florent_data/RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Helianthus annus LFC FRT vs LNI.csv", 
+ha_degs <- read.csv("RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Helianthus annus LFC FRT vs LNI.csv", 
                     header=T, sep=";")  %>% 
   filter(baseMean > 10 )
 
-pv_degs <- read.csv("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/Florent_data/RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Phaseolus vulgaris LFC FRT vs LNI.csv", 
+pv_degs <- read.csv("RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Phaseolus vulgaris LFC FRT vs LNI.csv", 
                     header=T, sep=";")  %>% 
   filter(baseMean > 10 )
 
-rc_degs <- read.csv("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/Florent_data/RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Ricinus communis LFC FRT vs LNI.csv", 
+rc_degs <- read.csv("RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Ricinus communis LFC FRT vs LNI.csv", 
                     header=T, sep=";") %>% 
   mutate(Gene.id = gsub("\\..*", "", Gene.id))  %>% 
   filter(baseMean > 10 )
 
-sl_degs <- read.csv2("C:/Users/suaph281/Desktop/nesh_local/LDT_rnaseq/Florent_data/RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Solanum lycopersicum LFC FRT vs LNI.csv", 
+sl_degs <- read.csv2("RNAseq_LFC_Infected_vs_Mock_Species_Sucher/Solanum lycopersicum LFC FRT vs LNI.csv", 
                      header=T, sep=";")  %>% 
   filter(baseMean > 10 )
 
@@ -145,7 +137,7 @@ merged <- ath_og_ids %>%
 # Upset
 selected_species=colnames(merged)
 library(UpSetR)
-svg(paste0("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_3/", Sys.Date(),"_UpSet_coreDEOGs_broad.svg"), 
+svg(paste0("figures/fig_3/", Sys.Date(),"_UpSet_coreDEOGs_broad.svg"), 
     width=6, height=4, bg="transparent")
 upset(merged, 
               nsets = ncol(merged),

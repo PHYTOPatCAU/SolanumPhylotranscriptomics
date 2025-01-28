@@ -1,11 +1,13 @@
+# QDR RNAseq Solanum species
 # Draw heatmap of cicDEOGs expression pattern 
+# Severin Einspanier
 
 #1. get cicDEOGs
 rm(list=ls())
 library(tidyverse)
 library(reshape2)
 library(pheatmap)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
 DEGs_res <- read.csv("DeSeq/data/DeSeq_OUT/combined_RES_inf_mock_DEGs.csv")
 DEGs_sus <- read.csv("DeSeq/data/DeSeq_OUT/combined_SUS_inf_mock_DEGs.csv")
@@ -108,9 +110,9 @@ names <- lapply(rownames(merged_cicDEOG_expression),
                 function(x) bquote(italic(.(x))))
 
 # Draw the heatmap
-svg("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_4/cicDEOGs_expression.svg", 
+svg("figures/fig_4/cicDEOGs_expression.svg", 
     width = 12, height = 5)
-png("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_4/cicDEOGs_expression.png", 
+png("figures/fig_4/cicDEOGs_expression.png", 
     width = 16.5/2, height = 8, unit="cm", res=960)
 pheatmap::pheatmap(merged_cicDEOG_expression,
                    scale = "none",
@@ -126,57 +128,3 @@ pheatmap::pheatmap(merged_cicDEOG_expression,
          fontsize_col = 6)
 
 dev.off()
-
-##############################################################
-##############################################################
-##### GO TERMS
-# THIS DOES NOT WORK NICELY!
-##############################################################
-
-library(clusterProfiler)
-TERM2GENE <- read.csv("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/GO/data/OG_TERM2GENE.csv") %>% 
-  dplyr::select(id, OG) %>% 
-  unique()
-
-Term2NAME <- read.csv("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/GO/data/OG_TERM2NAME.csv") %>% 
-  dplyr::select(id, desc) %>% 
-  unique()
-
-egmt <- clusterProfiler::enricher(cicDEGO_id$OG, 
-                                  TERM2GENE=TERM2GENE, 
-                                  TERM2NAME=Term2NAME, 
-                                  qvalueCutoff = 0.1)
-#head(summary(egmt@result))
-
-enrichplot::dotplot(egmt)
-
-cicDEGO_id<- induced_cDEOGs %>%
-  #select(!`S. habrochaites`) %>% 
-  mutate(sum=rowSums(.)) %>%
-  filter(sum>3) %>% 
-  mutate(OG=rownames(.)) %>%
-  `rownames<-`( NULL ) %>% 
-  select(OG) %>% 
-  clipr::write_clip()
-
-# maybe only of LFC res-sus 
-
-
-# LFC Res-Sus
-
-
-# Reshape the data frame to wide format
-heatmap_data <- reshape2::dcast(merged_cicDEOG_expression, species ~ OG, 
-                                value.var = "log2FoldChange")
-
-# Set row names to species_res and remove the species_res column
-rownames(heatmap_data) <- heatmap_data$species
-heatmap_data <- heatmap_data[, -1]
-
-pheatmap(heatmap_data, 
-                   cluster_rows = FALSE, 
-                   cluster_cols = FALSE, 
-                   color = colorRampPalette(c("blue", "white", "red"))(50),
-                   main = "Heatmap of log2FoldChange",
-                   fontsize_row = 10,
-                   fontsize_col = 10)

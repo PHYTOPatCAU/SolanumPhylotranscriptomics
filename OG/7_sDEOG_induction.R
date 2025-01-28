@@ -1,12 +1,15 @@
+# QDR RNAseq Solanum species
 # Are sDEOGs induced?
+# Severin Einspanier
+# 2024_12_14
 
 rm(list=ls())
 
 
 library(tidyverse)
-# RES
 
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+# RES
+setwd("")
 
 DEGs_res <- read.csv("DeSeq/data/DeSeq_OUT/combined_RES_inf_mock_DEGs.csv") %>% 
   select(log2FoldChange, padj, species, GeneID) %>% 
@@ -42,7 +45,7 @@ plot_isDEOGs <- isDEOGs %>%
   mutate(tot_sum=sum(sum), 
          n=n(),)
 
-svg(paste0("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_3/", Sys.Date(), "_induction_sDEOGs.svg"), 
+svg(paste0("fig_3/", Sys.Date(), "_induction_sDEOGs.svg"), 
     width=4, height=5, bg="transparent")
 
 (p1 <- plot_isDEOGs %>% 

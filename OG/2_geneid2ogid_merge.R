@@ -1,7 +1,9 @@
-# edit genids and merge all species together. 
+# QDR RNAseq Solanum species
+# Extract geneIDs and merge into one consensus
+# Severin Einspanier 
 
 pacman::p_load(tidyverse)
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 # List all files matching the pattern
 files <- list.files("Ogs/data", pattern = "^genid2goid_", full.names = TRUE)
 
@@ -38,7 +40,7 @@ merged_df <- bind_rows(processed_list)
 merged_df <- unique(merged_df)
 
 # Write the merged data to a file
-write.table(merged_df, file = paste0("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/OGs/data/",
+write.table(merged_df, file = paste0("data/",
   Sys.Date(), "_genid2goid_all_species.txt"), sep = "\t", row.names = FALSE, quote = FALSE)
 
   

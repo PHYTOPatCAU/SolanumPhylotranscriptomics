@@ -1,5 +1,7 @@
+# QDR RNAseq Solanum species
 # This script is used to assess how many of the cDEOGs are induced upon infection 
 # -> icDEOGs for both resistant (res) and susceptible (sus) genes
+# Severin Einspanier
 
 # Load required libraries
 rm(list=ls())
@@ -8,7 +10,7 @@ library(UpSetR)
 library(ComplexHeatmap)
 
 # Set working directory
-setwd("C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/")
+setwd("")
 
 # Load data
 DEGs_res <- read.csv("DeSeq/data/DeSeq_OUT/combined_RES_inf_mock_DEGs.csv")
@@ -75,7 +77,7 @@ combined_induced_cDEOGs <- core_DEOGs %>%
 selected_species_combined <- colnames(combined_induced_cDEOGs)
 
 # Save the combined plot as an SVG
-svg(paste0("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/fig_3/", Sys.Date(), "_cDEOGs_induction.svg"),
+svg(paste0("figures/fig_3/", Sys.Date(), "_cDEOGs_induction.svg"),
     width = 8, height = 5)
 upset(
   combined_induced_cDEOGs, 
@@ -105,7 +107,7 @@ tab <- induced_cDEOGs %>%
   mutate(sum = rowSums(.)) %>% 
   group_by(sum) %>%
   summarise(n = n())
-write.csv(tab, "C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/OGs/data/cDEOGs_induction_summary.csv", row.names=FALSE)  
+write.csv(tab, "data/cDEOGs_induction_summary.csv", row.names=FALSE)  
 
 # Extract GO terms of the cicDEOGs
 cicDEOGs <- induced_cDEOGs %>% 
@@ -134,7 +136,7 @@ cicDEOGs <- induced_cDEOGs %>%
   rownames(NULL)
 
 
-write.csv(cicDEOGs, "C:/Users/suaph281/Desktop/GitLab/2024_solanum_ldt_rnaseq/OGs/data/cicDEOGs_IDs_5.csv", row.names=FALSE)
+write.csv(cicDEOGs, "data/cicDEOGs_IDs_5.csv", row.names=FALSE)
 # OLD!
 # Create UpSet plots using ComplexHeatmap
 m1 <- make_comb_mat(induced_cDEOGs_res, min_set_size = 0)
@@ -142,12 +144,12 @@ m1norm <- normalize_comb_mat(m1, full_comb_sets = TRUE)
 m2 <- make_comb_mat(induced_cDEOGs_sus, min_set_size = 0)
 m2norm <- normalize_comb_mat(m2, full_comb_sets = TRUE)
 
-png("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/cDEOGs_induction_res.png",
+png("sequencing/figures/cDEOGs_induction_res.png",
     width = 10, height = 4, units = 'in', res = 600)
 ComplexHeatmap::UpSet(m1, comb_order = order(comb_size(m1))) 
 dev.off()
 
-png("C:/Users/suaph281/Nextcloud/ResiDEvo/sequencing/figures/cDEOGs_induction_sus.png",
+png("sequencing/figures/cDEOGs_induction_sus.png",
     width = 10, height = 4, units = 'in', res = 600)
 ComplexHeatmap::UpSet(m2, comb_order = order(comb_size(m2)))
 dev.off()

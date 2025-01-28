@@ -1,3 +1,7 @@
+# QDR RNAseq Solanum species
+# get cic DEGs for functional enrichment using spen data
+# Severin Einspanier
+
 #!/bin/bash
 
 # Load necessary modules
@@ -8,13 +12,13 @@ module load miniconda3
 conda activate seqkit
 
 # Path to the CSV file
-CSV_FILE="/gxfs_home/cau/suaph281/2024_solanum_ldt_rnaseq/OGs/data/cicDEOGs_IDs/OG_cDEOGs_IDs_spen.csv"
+CSV_FILE="OG_cDEOGs_IDs_spen.csv"
 
 # Path to the species-proteome FASTA file
-PROTEOME_FILE="/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/PROTEOME/spen_curated_proteome_OG_pannzer_dedub.fasta"
+PROTEOME_FILE="spen_curated_proteome_OG_pannzer_dedub.fasta"
 
 # Path to the output FASTA file
-OUTPUT_FILE="/gxfs_work/cau/suaph281/RNAseq/RNAseq_work/data/STRING/spen_cicDEOGs_sequences/all_extracted_sequences.fasta"
+OUTPUT_FILE="all_extracted_sequences.fasta"
 
 # Initialize the output file
 > "$OUTPUT_FILE"
