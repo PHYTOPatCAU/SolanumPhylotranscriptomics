@@ -30,3 +30,5 @@ This repository is structured following the tools/methods used:
 
 ## Data Availability 
 
+Sequencing data is available at the NCBI GEO repository under accession number GSE288242.
+
